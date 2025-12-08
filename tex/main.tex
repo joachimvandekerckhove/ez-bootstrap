@@ -1,0 +1,420 @@
+% To compile in APA format: pdflatex "\def\apaformat{1}\input{main}"
+% To compile in original format: pdflatex main.tex
+
+% \def\apaformat{1}
+
+\ifdefined\apaformat
+  \input{cidlab/draft}
+\else
+  \input{cidlab/pretty}
+\fi
+% Main document content starts here
+
+\input{includes/notes}%\shownotestrue
+\input{includes/macros}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\lstset{extendedchars=true,upquote=true}
+% Handle UTF-8 characters in listings using literate option
+% This replaces the ≈ character (U+2248) with LaTeX math mode \approx
+% Note: The character must be specified exactly as it appears in the file
+\lstdefinestyle{utf8style}{
+  extendedchars=true,
+  upquote=true,
+  literate={≈}{{$\approx$}}1
+}
+\lstset{style=utf8style}
+
+\begin{document}
+
+\maketitle
+
+\introduction{}
+
+\noindent{}%
+Cognitive models serve dual purposes in psychological research. On one hand, they can be used to understand the cognitive infrastructure---the underlying mechanisms and processes that give rise to behavior. On the other hand, cognitive models can function as measurement tools, translating behavioral observations into interpretable psychological parameters. This paper focuses on the latter: we develop computationally efficient methods for uncertainty quantification in cognitive models used as measurement instruments. The need for computational efficiency becomes critical in large-scale applications such as meta-analyses across hundreds of studies, real-time experimental analysis during data collection, and individual differences research requiring parameter estimation for thousands of participants. Traditional approaches to uncertainty quantification, which rely on computationally expensive resampling or Bayesian inference, create barriers in these contexts. We propose a bootstrap method that exploits the synthetic likelihood structure of a class of cognitive models we call `EZ' models, achieving dramatic speed improvements while maintaining statistical validity.
+
+
+\section{Synthetic likelihood methods}
+
+Synthetic likelihood methods provide a framework for statistical inference when the likelihood function is intractable but summary statistics with known or estimable distributions are available \cite{wood_statistical_2010,Price2017}. The core idea is to replace the full likelihood with a likelihood based on summary statistics, which can be computed efficiently even when the full data likelihood cannot.
+
+The synthetic likelihood approach was introduced by \citeauthor{wood_statistical_2010} for inference in complex ecological systems with chaotic dynamics. When direct likelihood evaluation is impossible, one can extract phase-insensitive summary statistics from the data and compare them to summary statistics simulated from the model. This approach has been extended to Bayesian settings \cite{Price2017}, where the synthetic likelihood is used within a Bayesian framework to enable posterior inference.
+
+Certain cognitive models, which we will refer to here as the `EZ' models (after the EZ diffusion model; \citeNP{WagenmakersEtAl2007}), similarly fit the description of synthetic likelihood models, and provide a natural application of methods specific to that class. For example, in the EZ diffusion model, rather than working with the full likelihood over all trial-level data, we work with three summary statistics: accuracy rate, mean response time, and response time variance. These statistics have known sampling distributions, allowing us to construct a likelihood function directly from the summaries \cite{chávez_de_la_peña_vandekerckhove:in_press:hierarchical}. This synthetic likelihood approach is particularly powerful because the EZ model provides analytical expressions that map parameters to these summary statistics, eliminating the need for simulation, and paving the way for uncertainty quantification using a variation on the transformation-of-variables technique.
+
+\section{The class of EZ models}
+
+In this paper, we will rely on a class of cognitive models we call `EZ'.  EZ models are defined by the existence of an invertible system of equations that maps a model parameter vector $\theta$ to a set of summary statistics $S$.  The vector $\theta$ need not contain \textit{all} of the model's parameters, but may be limited to a subset of interest (as in the application by \citeNP{wood_statistical_2010}).  The system consists of a set of smooth `forward' equations $f$ and `inverse' equations $i$:
+\begin{eqnarray}
+    f& :&  \theta \mapsto S \nonumber\\
+    i& :&  S \mapsto \theta\label{eq:generic:inv}
+\end{eqnarray}
+
+The EZ class contains some well-known cognitive models.  We take signal detection theory (SDT; \citeNP{swets_green:1966:signal}) as an example:
+\begin{eqnarray}
+    (\HitRate,\FalseAlarm) &=& f_\text{SDT}(\dprime,\criterion) \nonumber \\
+    &\Leftrightarrow& \left\{
+    \begin{array}{rcl}
+         \HitRate&=& \Phi(\dprime - \criterion) \\
+         \FalseAlarm&=& \Phi(-\criterion) \\
+    \end{array}\right.
+\end{eqnarray}
+where $\Phi$ denotes the standard normal cumulative distribution function. The inverse equations map summary statistics back to parameters:
+\begin{eqnarray}
+    (\dprime,\criterion) &=& i_\text{SDT}(\HitRate,\FalseAlarm) \nonumber \\
+    &\Leftrightarrow& \left\{
+    \begin{array}{rcl}
+         \dprime&=& \Phi^{-1}(\HitRate) - \Phi^{-1}(\FalseAlarm) \\
+         \criterion&=& -\Phi^{-1}(\FalseAlarm) \\
+    \end{array}\right.
+\end{eqnarray}
+where $\Phi^{-1}$ denotes the inverse standard normal cumulative distribution function. Here, $\HitRate$ denotes the hit rate (probability of correctly identifying a signal), $\FalseAlarm$ denotes the false alarm rate (probability of incorrectly identifying a signal when none is present), $\dprime$ denotes sensitivity (the ability to discriminate signal from noise), and $\criterion$ denotes the criterion (the decision threshold).
+
+Other members of the EZ class include the EZ diffusion model (\citeNP{chávez_de_la_peña_vandekerckhove:in_press:hierarchical}; discussed in detail below), the EZ circular diffusion model \cite{QarehdaghiRad2024}, and simple multinomial processing tree models with analytical solutions.
+
+
+\section{The EZ bootstrap procedure}\label{sec:ez_bootstrap}
+
+We propose a bootstrap method we call `EZ bootstrap' that exploits the synthetic likelihood structure of EZ models. The method operates directly on summary statistics, using their known sampling distributions to perform a parametric bootstrap. 
+
+In the abstract, EZ bootstrap proceeds along the following steps:
+\begin{enumerate}
+\item Compute observed summary statistics $S$ from the data
+\item For each bootstrap repetition $b = 1, \ldots, B$:
+\begin{enumerate}
+\item Sample summary statistics $S^*_b$ from their known sampling distributions $\mathcal{D}_S$ (e.g., binomial for accuracy, normal for mean RT, gamma for variance). The requirement that these distributions $\mathcal{D}_S$ be known or estimable is fundamental to the method.
+\item Transform $S^*_b$ through the inverse equations $i$ to obtain bootstrap parameter estimates $\theta^*_b = i(S^*_b)$
+\end{enumerate}
+\item Aggregate the bootstrap parameter estimates $\{\theta^*_1, \ldots, \theta^*_B\}$ to compute means, standard deviations, and credible intervals
+\end{enumerate}
+
+This procedure is formalized in Algorithm~\ref{alg:ez_bootstrap}. EZ bootstrap is fundamentally a transformation-of-variables approach to uncertainty estimation. Rather than resampling raw data and re-estimating parameters, we resample the summary statistics from their known distributions, then transform these resampled statistics through the inverse equations to obtain parameter estimates. This transformation preserves the statistical properties of the bootstrap while eliminating the computational cost of data resampling.
+
+\begin{algorithm}[t]
+\caption{EZ Bootstrap Procedure}
+\label{alg:ez_bootstrap}
+\begin{algorithmic}[1]
+\Require Observed summary statistics $S$, number of bootstrap samples $B$, inverse transformation $i: S \mapsto \theta$, sampling distributions $\mathcal{D}_S$ for each component of $S$
+\Ensure Bootstrap parameter estimates $\{\theta^*_1, \ldots, \theta^*_B\}$
+\State $\Theta^* \leftarrow \emptyset$
+\For{$b = 1$ to $B$}
+    \State Sample $S^*_b \sim \mathcal{D}_S$ from known sampling distributions of $S$
+    \State $\theta^*_b \leftarrow i(S^*_b)$
+    \State $\Theta^* \leftarrow \Theta^* \cup \{\theta^*_b\}$
+\EndFor
+\Return $\Theta^*$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Transformation of variables for uncertainty quantification}
+Transformation of variables is a fundamental method in statistics for propagating uncertainty through deterministic transformations \cite{rice2006mathematical}. When a random variable $X$ with known distribution is transformed through a function $Y = g(X)$, the distribution of $Y$ can be derived using the change-of-variables formula. This technique is central to the EZ bootstrap method.
+
+In the context of uncertainty quantification, transformation of variables allows us to derive the distribution of parameter estimates from the distribution of summary statistics in EZ models. The inverse equations (Eq.~\ref{eq:generic:inv}) provide a deterministic transformation from summary statistics to parameters. By applying this transformation to bootstrap samples of the summary statistics, we obtain bootstrap samples of the parameters, which can then be used to quantify uncertainty.
+
+The key advantage of this approach is computational efficiency. Rather than resampling raw data and re-estimating parameters for each bootstrap sample---which would require expensive optimization or simulation---we resample the summary statistics from their known distributions and apply the analytical transformation. This eliminates the computational bottleneck while preserving the statistical properties of the bootstrap.
+
+The transformation-of-variables approach is made possible in EZ models particularly because the inverse transformation is analytical, smooth, and one-to-one (within the parameter space, or a relevant subspace thereof). 
+
+
+\subsection{Theoretical justification for coverage preservation} The bootstrap procedure maintains proper coverage properties when the inverse transformation $i: S \mapsto \theta$
+is a continuous, differentiable function. Under the bootstrap sampling scheme, we generate $S^*$ from its known distribution, then compute $\theta^* = i(S^*)$. Since $i$ is deterministic and the bootstrap samples $S^*$ have the correct sampling distributions, the transformed samples $\theta^*$ correctly represent the sampling distribution of the parameter estimates. This follows from the invariance property of bootstrap methods under smooth transformations \cite{rice2006mathematical}. The coverage properties are preserved because the bootstrap distribution of the transformed parameters matches the true sampling distribution of the parameter estimates, up to the accuracy of the assumed distributions for the summary statistics.
+
+\section{Application to the simple diffusion model}
+
+The drift diffusion model (DDM) provides a unified account of decision-making processes, modeling both response accuracy and response time as the result of an evidence accumulation process \cite{Ratcliff1978,Wagenmakers2009Bertelson}. This framework has proven valuable in cognitive psychometrics, enabling the translation of behavioral patterns into interpretable cognitive parameters \cite<e.g.,>{pe_etal:2013:relationship,schubert_etal:2019:neuroscience}.
+
+The EZ diffusion model \cite{WagenmakersEtAl2007} was originally proposed as a method to simplify use of the DDM by providing analytical expressions that map three summary statistics---accuracy rate, mean response time, and response time variance---to three cognitive parameters: drift rate, boundary separation, and non-decision time. This makes the EZ framework a synthetic likelihood model: it provides a likelihood function based on summary statistics rather than raw trial data.
+
+\subsection{The EZ diffusion model}
+
+The EZ diffusion model provides analytical expressions for three summary statistics from a set of $n$ two-choice decision trials.  Let $\acc$ denote the observed accuracy rate, $\meanrt$ the observed mean response time, and $\varrt$ the observed response time variance. The model's three parameters are the drift rate $\drift$, boundary separation $\boundarysep$, and non-decision time $\ndt$.
+This allows us to define forward equations 
+$
+f_\text{DIF}:
+\left(\drift,\boundarysep,\ndt\right)
+\mapsto
+\left(\acc, \meanrt, \varrt\right)
+$ and inverse equations 
+$
+i_\text{DIF}:
+\left(\acc, \meanrt, \varrt\right)
+\mapsto
+\left(\drift,\boundarysep,\ndt\right)
+$.
+
+The EZ forward equations map parameters to summary statistics. Let $y = \exp(-\boundarysep \drift)$ where $\boundarysep$ is boundary separation and $\drift$ is drift rate. Then,
+\begin{eqnarray}
+\acc &=& \frac{1}{1+y} \nonumber\\
+\meanrt &=& \ndt + \left(\frac{\boundarysep}{2\drift}\right) \left(\frac{1-y}{1+y}\right) \nonumber\\
+\varrt &=& \left(\frac{\boundarysep}{2\drift^3}\right) \left(\frac{1-2\boundarysep\drift y - y^2}{(1+y)^2}\right) \nonumber
+\end{eqnarray}
+When $\drift = 0$ (drift rate is zero), the forward equations simplify to $\acc = 0.5$, $\meanrt = \ndt + \boundarysep$, and $\varrt = \boundarysep^2$.
+
+The EZ inverse equations map summary statistics to parameters. Let $y = \log(\acc/(1-\acc))$ be the logit of accuracy. Then,
+\begin{eqnarray}
+\drift &=& \text{sign}\left(\acc - \frac{1}{2}\right) \sqrt[4]{\frac{y(\acc^2 y - \acc y + \acc - 1/2)}{\varrt}} \nonumber\\
+\boundarysep &=& \frac{y}{\drift} \nonumber\\
+\ndt &=& \meanrt - \left(\frac{\boundarysep}{2\drift}\right) \left(\frac{1-e^{-\drift\boundarysep}}{1+e^{-\drift\boundarysep}}\right) \nonumber
+\end{eqnarray}
+
+These equations provide point estimates. The bootstrap method extends this to uncertainty quantification.
+
+\subsection{The EZ bootstrap procedure applied to simple diffusion}
+
+The bootstrap exploits the known sampling distributions of the summary statistics. For a sample of size $n$, these distributions are:
+\begin{eqnarray*}
+n\acc &\sim& \text{Binomial}(n, p)\\
+\meanrt &\sim& \mathcal{N}\left(m, \frac{s^2}{n}\right)\\
+\varrt &\sim& \text{Gamma}\left(\frac{n-1}{2}, \frac{2s^2}{n-1}\right)
+\end{eqnarray*}
+where $p$, $m$, and $s^2$ are the true population values of accuracy, mean RT, and RT variance.
+
+\subsection{Distributional assumptions and their justification} The binomial distribution for accuracy is exact. The normal distribution for mean RT is asymptotically valid by the central limit theorem; for finite samples, this approximation is accurate when $n \geq 30$ and the underlying RT distribution has finite variance. The Gamma distribution for variance is exact under the assumption that RTs are normally distributed; while RTs are not exactly normal, this approximation is reasonable for the EZ model when sample sizes are moderate ($n \geq 50$).
+Note, however, that we do not make sample size recommendations based on these classical rules of thumb.  The procedure we propose is so fast that Monte Carlo studies are very feasibly methods to evaluate the effect of violated assumptions.
+
+\subsection{Independence assumption} We assume approximate independence between the three summary statistics. While these statistics are derived from the same data, they are asymptotically independent under the EZ model assumptions. For finite samples, correlations have negligible impact on coverage properties (see our simulation studies below). 
+% The independence assumption allows us to sample each statistic independently.
+
+% The bootstrap procedure (as described in the abstract form above and in Algorithm~\ref{alg:ez_bootstrap}) proceeds as follows:
+% \begin{enumerate}
+% \item Draw bootstrap samples of the summary statistics from their sampling distributions
+% \item Transform each bootstrap sample through the EZ inverse equations (Equations~\ref{eq:ez:est:v}, \ref{eq:ez:est:a}, and~\ref{eq:ez:est:d}) to obtain bootstrap parameter estimates
+% \item Aggregate the bootstrap estimates to compute means, standard deviations, and credible intervals
+% \end{enumerate}
+
+% This procedure requires only basic analytical transformations, making it orders of magnitude faster than methods that require iterative optimization or MCMC sampling.
+
+\section{Design matrix extension}
+
+In applied contexts, we often constrain parameters across conditions. These constraints can be expressed using design matrices. For example, if drift rates vary linearly with a stimulus property $x_i$, we can write:
+$$\drift_i = \beta_0 + \beta_1 x_i$$
+
+This generalizes, so that parameter constraints can be expressed as:
+$$\Delta = X \times B$$
+where $\Delta$ is a vector of parameters, $X$ is a design matrix, and $B$ is a vector of regression weights.
+
+If the model parameters $\Delta$ are known and the model is identified, the weights $B$ can be derived via matrix inversion:
+\begin{equation}
+    \hat{B} = X^{-1} \times \Delta \label{eq:design:solution}
+\end{equation}
+
+Importantly, adding the design matrix extension \textit{keeps the model inside the EZ class} and does not change the bootstrap logic.  This is easy to prove: %the bootstrap procedure still resamples summary statistics and applies the EZ inverse transformation to obtain parameters (as in the basic EZ bootstrap). The design matrix transformation is then applied as a deterministic linear mapping from parameters to beta weights. Since the design matrix transformation is deterministic and linear, composing it with the EZ inverse transformation preserves the bootstrap properties: we are still propagating uncertainty through a deterministic transformation, just with an additional step in the chain.
+%
+% \paragraph{Formal proof.}
+Let $i: S \mapsto \theta$ denote the EZ inverse transformation mapping summary statistics $S$ to parameters $\theta$, and let $h: \theta \mapsto B$ denote the design matrix transformation mapping parameters $\theta$ to beta weights $B$ via $h(\theta) = X^{-1}\theta$ (where $X$ is the design matrix). The basic EZ bootstrap generates bootstrap samples $\theta^* = i(S^*)$ where $S^*$ is resampled from the known distribution of summary statistics. With the design matrix extension, we generate bootstrap samples $B^* = h(i(S^*)) = X^{-1}i(S^*)$. 
+
+Since $i$ is a deterministic, smooth transformation (by the definition of EZ models) and $h$ is a deterministic linear transformation (matrix multiplication), their composition $h \circ i: S \mapsto B$ is also deterministic and smooth. By the invariance property of bootstrap methods under smooth transformations \cite{rice2006mathematical}, if the bootstrap distribution of $S^*$ correctly represents the sampling distribution of $S$, then the bootstrap distribution of $B^* = (h \circ i)(S^*)$ correctly represents the sampling distribution of $B = (h \circ i)(S)$. Therefore, the design matrix extension preserves the bootstrap's coverage properties: the model remains in the EZ class because we still use the EZ inverse transformation, and the bootstrap logic is unchanged because we are still propagating uncertainty through a deterministic transformation.
+
+\subsection{Identifiability and numerical stability} For the design matrix extension to work, $X$ must be full rank (i.e., $\text{rank}(X) = \text{dim}(B)$). When $X$ is singular or near-singular, the inversion in Equation~\ref{eq:design:solution} becomes problematic. For well-designed experiments with proper contrasts, identifiability is typically satisfied.
+
+% In practice, in our python implementation, we check the condition number of $X$ and warn users if $\kappa(X) > 10^6$, which indicates potential numerical instability. The condition number $\kappa(X) = \|X\| \|X^{-1}\|$ measures how sensitive the solution is to small changes in the input. A large condition number (e.g., $> 10^6$) indicates that $X$ is nearly singular, meaning that small errors in the data or floating-point arithmetic can lead to large errors in the computed inverse, making the results unreliable.
+
+\subsection{Computational implications of adding the design matrix}
+For efficiency purposes it is worth pointing out that the matrix inversion in Equation~\ref{eq:design:solution} generally needs to be computed only once per study. In a bootstrap procedure, we can estimate many $B$ vectors from many $\Delta$ vectors using the same inverted design matrix, making the design matrix extension computationally efficient. 
+
+The computational complexity is $O(k^3)$ for the initial inversion (where $k$ is the number of regression weights), then $O(k^2)$ per bootstrap sample, compared to $O(k^3)$ per sample if inversion were repeated. The complexity analysis follows from standard matrix operations: matrix inversion (e.g., via Gaussian elimination or LU decomposition) requires $O(k^3)$ operations for a $k \times k$ matrix. Matrix-vector multiplication requires $O(k^2)$ operations. With a pre-computed inverse $X^{-1}$, each bootstrap sample computes $\hat{B} = X^{-1} \Delta$, which is a matrix-vector multiplication requiring $O(k^2)$ operations. Without pre-computation, each bootstrap sample would require a full inversion at $O(k^3)$ cost.
+
+\section{Simulation studies}
+
+We present two standard calibration studies to validate the EZ bootstrap method.  In both cases, the target of the study was the calibration of the uncertainty quantification in terms of credibility interval coverage -- that is, we sought to confirm that credibility intervals contain the true value at a rate commensurate to their nominal coverage probability (specifically, that 95\% credible intervals contain the true value 95\% of the time).
+
+\subsection{Study 1: Single condition}
+In Study 1, we evaluated coverage for the regular EZ diffusion model with a single condition. We simulated $n = 100$ trials from true parameters $\boundarysep = 1.0$, $\drift = 0.5$, and $\ndt = 0.2$. For each of 10,000 simulation repetitions, we computed credible intervals at the 95\% confidence level using the EZ bootstrap method (with $1000$ bootstrap samples). 
+
+% \textit{Results.}
+We evaluated coverage at the 95\% confidence level across 10,000 simulation repetitions. The EZ bootstrap method achieved excellent calibration. Coverage rates were 95.1\%, 94.4\%, and 96.0\% for boundary, drift, and non-decision time, respectively---all within expected sampling variation of the nominal 95\% level. When considering all three parameters simultaneously, the coverage rate was 87.1\%, closely matching the expected value ($0.95^3 \approx 0.857$).
+
+\subsection{Study 2: Design matrix extension}
+In Study 2, we evaluated coverage for the EZ diffusion model with a design matrix extension. We simulated data from four conditions using a design matrix with three regression weights for each parameter type (boundary, drift, and non-decision time), resulting in 9 beta weight parameters total. The true beta weights were: boundary weights $[1.0, 1.5, 2.0]$, drift weights $[0.4, 0.8, 1.2]$, and non-decision time weights $[0.2, 0.3, 0.4]$. 
+
+The design matrices for boundary, drift, and non-decision time parameters were:
+$$
+X_\alpha = \begin{pmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1 \\
+0 & 0 & 1
+\end{pmatrix}\!\!,\,\,\,
+X_\delta = \begin{pmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1 \\
+0 & 1 & 0
+\end{pmatrix}\!\!,\,\,\,
+X_\tau = \begin{pmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1 \\
+1 & 0 & 0
+\end{pmatrix} 
+$$
+where each row corresponds to a condition and each column corresponds to a regression weight.
+Each condition had $n = 100$ trials. We conducted 10,000 simulation repetitions, computing credible intervals at the 95\% confidence level using EZ bootstrap (with $1000$ bootstrap samples).
+
+% \textit{Results.}
+The EZ bootstrap method maintained excellent calibration even with the added complexity of the design matrix structure. For boundary weights, coverage rates were 95.4\%, 94.8\%, and 96.6\% across the three weights. For drift weights, coverage rates were 94.5\%, 94.2\%, and 97.8\%. For non-decision time weights, coverage rates were 96.2\%, 94.5\%, and 95.3\%. All coverage rates were within expected sampling variation of the nominal 95\% level.
+
+\subsection{Computational performance}
+
+The EZ bootstrap method is exceptionally computationally efficient. For Study~1, the method required a mean of only 0.22~ms per estimation (SD = 0.06~ms), enabling rapid uncertainty quantification. For Study~2, with the added complexity of the design matrix, the method required a mean of 1.33~ms per estimation (SD = 0.15~ms). These computation times demonstrate that the method makes real-time\footnote{We have a strict definition of ``real-time'' as less than the duration of one frame in a typical experimental setup -- usually at least 1/120th of a second or 8.33~ms.} uncertainty quantification feasible where traditional methods would be prohibitively slow.
+
+
+\section{Other models}
+
+The EZ bootstrap method generalizes to any model in the EZ class -- that is, any model with analytical forward and inverse equations mapping parameters to summary statistics. Here we briefly describe two additional examples: the EZ circular diffusion model (EZ-CDM) and the one-high-threshold source-monitoring MPT model.
+
+\subsection{EZ circular diffusion model}
+
+The circular diffusion model \cite{Smith2016} extends the diffusion model to circular decision spaces, where evidence accumulation occurs in a two-dimensional disk rather than along a one-dimensional line. The model has four parameters: drift angle $\driftangle$, drift magnitude $\driftmag$, decision criterion (boundary radius) $\boundaryradius$, and non-decision time $\ndtcdm$. The EZ version of the circular diffusion model (EZ-CDM; \citeNP{QarehdaghiRad2024}) is a synthetic likelihood model that uses four summary statistics: circular mean of choice angles ($\MCA{}$), circular variance of choice angles ($\VCA{}$), mean response time ($\MRT{}$), and response time variance ($\VRT{}$).
+
+The forward equations $f_\text{CDM}: \left(\driftangle, \driftmag, \boundaryradius, \ndtcdm\right) \mapsto \left(\MCA{}, \VCA{}, \MRT{}, \VRT{}\right)$ map parameters to summary statistics. The choice-angle distribution is von Mises with mean $\mu = \driftangle$ and concentration $\kappa = \boundaryradius\driftmag$. The circular mean and variance are:
+\begin{eqnarray}
+\MCA{} &=& \driftangle \nonumber\\
+R &=& \frac{I_1(\kappa)}{I_0(\kappa)}, \quad \VCA{} = 1 - R \nonumber
+\end{eqnarray}
+where $I_0$ and $I_1$ are modified Bessel functions of the first kind. The response time moments are:
+\begin{eqnarray}
+\MRT{} &=& \ndtcdm + \frac{\boundaryradius}{\driftmag} \frac{I_1(\boundaryradius\driftmag)}{I_0(\boundaryradius\driftmag)} \nonumber\\
+\VRT{} &=& \frac{\boundaryradius^2}{\driftmag^2} \left( \frac{I_1(\boundaryradius\driftmag)}{I_0(\boundaryradius\driftmag)} \right)^2 + \frac{2\boundaryradius}{\driftmag^3} \frac{I_1(\boundaryradius\driftmag)}{I_0(\boundaryradius\driftmag)} - \boundaryradius^2 \nonumber
+\end{eqnarray}
+
+The inverse equations $i_\text{CDM}: \left(\MCA{}, \VCA{}, \MRT{}, \VRT{}\right) \mapsto \left(\driftangle, \driftmag, \boundaryradius, \ndtcdm\right)$ map summary statistics to parameters. The estimation proceeds in four steps:
+\begin{eqnarray}
+\hat{\driftangle} &=& \MCA{} \nonumber\\
+R &=& 1 - \VCA{}, \quad \text{solve } \frac{I_1(\kappa)}{I_0(\kappa)} = R \text{ for } \kappa \nonumber\\
+\hat{\driftmag}^4 &=& \frac{1}{\VRT{}}\left( \kappa^2 R^2 + 2\kappa R - \kappa^2 \right), \quad \hat{\boundaryradius} = \frac{\kappa}{\hat{\driftmag}} \nonumber\\
+\hat{\ndtcdm} &=& \MRT{} - \frac{\hat{\boundaryradius}}{\hat{\driftmag}}R \nonumber
+\end{eqnarray}
+
+% \textit{Sampling distributions.}
+The sampling distributions of the four summary statistics determine the variability and robustness of EZ-CDM parameter estimates. Under the simple CDM, choice angles follow a von Mises distribution with concentration $\kappa = \boundaryradius\driftmag$, and response times follow the first-passage-time distribution of a two-dimensional Bessel process with drift.
+
+For the circular mean of choice angles (MCA), the angular error $\widehat{\driftangle} - \driftangle$ is approximately normally distributed for large $N$:
+\begin{equation}
+\widehat{\driftangle} - \driftangle \sim \mathcal{N}\left(0, \frac{1}{N\kappa A_1(\kappa)}\right) \nonumber
+\end{equation}
+where $A_1(\kappa) = I_1(\kappa)/I_0(\kappa)$. The variance decreases rapidly with concentration $\kappa$, making estimation most difficult when drift magnitude or boundary radius are small.
+
+For the circular variance (VCA), the mean resultant length $R = \sqrt{\bar{c}^2 + \bar{s}^2}$ is approximately normal for moderate-to-large $N$, with mean $A_1(\kappa)$ and variance:
+\begin{equation}
+\operatorname{Var}(R) \approx \frac{1 - A_1(\kappa)^2}{N} \nonumber
+\end{equation}
+Consequently, $\widehat{\mathrm{VCA}} = 1 - R$ is also asymptotically normal with the same variance. The circular variance is insensitive to outliers in angle (since angles wrap on the circle), but becomes unstable when $R$ is near zero.
+
+For mean response time (MRT), the central limit theorem applies:
+\begin{equation}
+\widehat{\mathrm{MRT}} \sim \mathcal{N}\left(E[T], \frac{\operatorname{Var}(T)}{N}\right) \nonumber
+\end{equation}
+where $E[T]$ and $\operatorname{Var}(T)$ are given by the forward equations. Mean RT is robust for large $N$ but highly sensitive to RT contaminants, with bias growing linearly in the contamination proportion.
+
+For response time variance (VRT), the sample variance is asymptotically normal but with slower convergence:
+\begin{equation}
+\widehat{\mathrm{VRT}} \sim \mathcal{N}\left(\operatorname{Var}(T), \frac{\mu_4 - \operatorname{Var}(T)^2}{N}\right) \nonumber
+\end{equation}
+where $\mu_4$ is the fourth central moment of the RT distribution. This statistic is the most contamination-sensitive in EZ-CDM, as a small number of extreme RTs can cause large upward shifts.
+
+The EZ bootstrap procedure can be applied to EZ-CDM by resampling these statistics from their asymptotic distributions. The angle-based statistics (MCA and VCA) have well-behaved sampling distributions, while the RT-based statistics (MRT and VRT) introduce most of the sampling variability in the inversion system, especially when solving for drift magnitude and boundary radius.
+
+\subsection{One-high-threshold source-monitoring model}
+
+The one-high-threshold source-monitoring MPT model \cite{BatchelderRiefer1990,BatchelderRiefer1999} is a multinomial processing tree model for source memory that allows participants to identify items as coming from Source~A, Source~B, or as new. The model has four parameters: detection probability $\Detect$, source discrimination probability $\Discrim$, criterion for new items $\Criterion$, and guessing probability $\Guess$.
+
+The forward equations map parameters to observed response proportions. For old items from Source~A, the forward equations are:
+\begin{eqnarray}
+\AAstat &=& \Detect\Discrim + (1-\Detect)\Guess \nonumber\\
+\BAstat &=& \Detect(1-\Discrim) + (1-\Detect)(1-\Guess) \nonumber
+\end{eqnarray}
+where $\AAstat = P(\text{``A''} \mid \text{old from A})$ and $\BAstat = P(\text{``B''} \mid \text{old from A})$. Analogous expressions hold for old items from Source~B:
+\begin{eqnarray}
+\ABstat &=& \Detect(1-\Discrim) + (1-\Detect)\Guess \nonumber\\
+\BBstat &=& \Detect\Discrim + (1-\Detect)(1-\Guess) \nonumber
+\end{eqnarray}
+where $\ABstat = P(\text{``A''} \mid \text{old from B})$ and $\BBstat = P(\text{``B''} \mid \text{old from B})$. For new items, the model specifies:
+\begin{eqnarray}
+\NNstat &=& \Criterion \nonumber\\
+\ANstat &=& (1-\Criterion)\Guess \nonumber\\
+\BNstat &=& (1-\Criterion)(1-\Guess) \nonumber
+\end{eqnarray}
+where $\NNstat = P(\text{``new''} \mid \text{new})$, $\ANstat = P(\text{``A''} \mid \text{new})$, and $\BNstat = P(\text{``B''} \mid \text{new})$.
+The inverse equations provide closed-form parameter estimates:
+\begin{eqnarray}
+\Criterion &=& \NNstat \nonumber\\
+\Guess &=& \frac{\ANstat}{1-\NNstat} \nonumber\\
+\Detect &=& \frac{\AAstat + \ABstat - 2\Guess}{1-2\Guess} \nonumber\\
+\Discrim &=& \frac{\AAstat - (1-\Detect)\Guess}{\Detect} \nonumber
+\end{eqnarray}
+These linear relationships allow closed-form inversion, illustrating one of the simplest nontrivial MPTs for which both forward and inverse transformations are available in closed form.
+
+The sampling distributions for MPT models are multinomial: the observed counts in each response category follow a multinomial distribution with probabilities given by the forward equations. For old items from Source~A, the counts $(n_{\AAstat}, n_{\BAstat})$ follow:
+\begin{equation}
+(n_{\AAstat}, n_{\BAstat}) \sim \text{Multinomial}(n_A, (\AAstat, \BAstat)) \nonumber
+\end{equation}
+where $n_A$ is the number of old items from Source~A and $\AAstat + \BAstat = 1$. Similarly, for old items from Source~B:
+\begin{equation}
+(n_{\ABstat}, n_{\BBstat}) \sim \text{Multinomial}(n_B, (\ABstat, \BBstat)) \nonumber
+\end{equation}
+where $n_B$ is the number of old items from Source~B and $\ABstat + \BBstat = 1$. For new items:
+\begin{equation}
+(n_{\NNstat}, n_{\ANstat}, n_{\BNstat}) \sim \text{Multinomial}(n_N, (\NNstat, \ANstat, \BNstat)) \nonumber
+\end{equation}
+where $n_N$ is the number of new-item trials and $\NNstat + \ANstat + \BNstat = 1$. The EZ bootstrap procedure can be applied by resampling from these multinomial distributions and transforming through the inverse equations to obtain bootstrap parameter estimates.
+
+We provide this solvable MPT example only as an illustration.  Only a narrow class of MPT models has tractable analytical inverses, and they do not reflect the complexity of most MPT applications, where estimation usually requires numerical optimization or Bayesian inference \cite{matzke_etal:2018:nonstandard}.
+
+\section{Discussion}
+
+The EZ bootstrap method provides fast uncertainty quantification. It maintains proper calibration while achieving dramatic speed improvements over previous methods such as the Bayesian implementation by \citeA{chávez_de_la_peña_vandekerckhove:in_press:hierarchical}: the method achieves coverage rates that closely match nominal levels for both simple single-condition models and more complex design matrix extensions.
+
+The method's success relies on the synthetic likelihood structure of EZ models. By operating directly on summary statistics with known sampling distributions, we avoid the computational cost of raw data resampling while preserving statistical validity. The transformation-of-variables approach generalizes to any model in the EZ class---that is, any model with invertible mappings from parameters to summary statistics. The calibration results across multiple confidence levels provide strong evidence that the method maintains proper statistical properties while delivering computational efficiency.
+
+
+\subsection{Limitations}
+
+The bootstrap method has a few limitations worth pointing out:
+\begin{itemize}
+  \item \textbf{Model scope:} The method is limited to the class of EZ models and their design matrix extensions. While all identifiable models \textit{have} both the forward and inverse equations, they are often not known or mathematically inconvenient.
+  \item \textbf{Distributional assumptions:} The method requires that summary statistics have known or approximately known sampling distributions. The normal approximation for mean RT and Gamma approximation for variance are asymptotically valid but may be less accurate for very small samples ($n < 30$) or when RT distributions are highly skewed, but good approximations of sampling distributions are known for very many summary statistics.
+  \item \textbf{Independence assumption:} We assume approximate independence between summary statistics. While this holds asymptotically and is approximately valid for sufficiently large samples, correlations may be non-negligible for very small samples or models beyond our consideration.
+\end{itemize}
+
+
+\subsection{Future directions}
+
+Several extensions are possible. The method could be extended to yet more models with known mappings from parameters to summary statistics. Hierarchical extensions could enable multi-level modeling with summary statistics. Integration with experimental platforms could enable real-time semi-Bayesian design optimization and computerized adaptive tests.
+
+Perhaps most promisingly, implicit mappings from parameters to summary statistics exist even when explicit equations are unknown. Techniques from statistical learning, such as normalizing flow neural networks, could be used to approximate these mappings for use in the synthetic bootstrap method, extending the approach to a broader class of models.
+
+
+\bibliography{includes/references,includes/cidlab}\null
+
+\appendix
+\ifdefined\apaformat
+\section{Reproducing the simulation studies}
+\else
+\section{Appendix: Reproducing the simulation studies}
+\fi
+The simulation studies reported in this paper can be reproduced using the C implementation available in the \texttt{ez-bootstrap} GitHub repository (see \texttt{https://github.com/joachimvandekerckhove/ez-bootstrap}). The implementation requires the GNU Scientific Library (GSL) for random number generation and statistical distributions.
+
+To reproduce the studies:
+
+\begin{enumerate}
+\item Clone the repository %and navigate to the \texttt{cpp} directory.
+\item Install dependencies: GSL development libraries (e.g., \texttt{libgsl-dev} on Debian/Ubuntu systems).
+\item Build the executables by running \texttt{make}.
+\item Run the simulation script:
+\begin{verbatim}
+./run_simulations.sh
+\end{verbatim}
+\end{enumerate}
+
+The script executes both simulation studies with the following parameters: 10,000 simulation repetitions, sample size $n = 100$ trials per condition, and 1,000 bootstrap samples per repetition. Study 1 evaluates coverage for the single-condition EZ diffusion model; Study 2 evaluates coverage for the design matrix extension with four conditions and three regression weights per parameter type.
+
+The simulation outputs include coverage rates for each parameter (or beta weight) and computational performance metrics. The random seed is set to 100 for reproducibility; this can be modified in the script to generate different random sequences while maintaining reproducibility.
+
+Full output of the simulation script is reproduced below:
+% \cleardoublepage
+\lstinputlisting[basicstyle=\ttfamily\small,breaklines=true,literate={≈}{{$\approx$}}1]{includes/simulation-output.txt}
+\end{document}

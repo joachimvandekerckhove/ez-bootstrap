@@ -1,0 +1,70 @@
+make: Nothing to be done for 'all'.
+EZ Bootstrap (EZB) - Single Condition Simulation
+================================================
+
+True parameters:
+    boundary=1.00, drift=0.50, ndt=0.20
+Sample size: 100
+Bootstrap repetitions: 1000
+Simulation repetitions: 10000
+Random seed: 100
+
+
+
+========================================
+Simulation Results
+========================================
+
+Coverage:
+  Boundary: 95.1%  (should be ≈ 95%)
+  Drift:    94.4%  (should be ≈ 95%)
+  NDT:      96.0%  (should be ≈ 95%)
+  Total:    87.1%  (should be ≈ 86%)
+
+Iteration timing statistics:
+  Mean:  0.16 ms
+  Std:   0.01 ms
+  Min:   0.15 ms
+  Max:   0.44 ms
+  Total: 3032.62 ms (includes overhead)
+
+EZ Bootstrap (EZB) - Design Matrix Simulation
+=============================================
+
+True beta weights:
+  Boundary: 1.00 1.50 2.00 
+  Drift:    0.40 0.80 1.20 
+  NDT:      0.20 0.30 0.40 
+
+Sample size: 100
+Bootstrap repetitions: 1000
+Simulation repetitions: 10000
+Random seed: 100
+
+
+
+========================================
+Simulation Results
+========================================
+
+Coverage (should be ≈ 95%):
+Boundary weights:
+  Weight 1: 95.4%
+  Weight 2: 94.8%
+  Weight 3: 96.6%
+Drift weights:
+  Weight 1: 94.5%
+  Weight 2: 94.2%
+  Weight 3: 97.8%
+NDT weights:
+  Weight 1: 96.2%
+  Weight 2: 94.5%
+  Weight 3: 95.3%
+
+Iteration timing statistics:
+  Mean:  0.93 ms
+  Std:   0.08 ms
+  Min:   0.80 ms
+  Max:   2.00 ms
+  Total: 14190.78 ms (includes overhead)
+

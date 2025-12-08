@@ -1,0 +1,51 @@
+% Shared metadata for both document formats
+% This file is included by both draft.tex and pretty.tex
+
+% Title, authors and affiliations - format-specific
+\ifdefined\apaformat
+  \title{Fast Uncertainty Quantification in Cognitive Modeling}
+  % APA-specific formatting
+  \shorttitle{Fast Uncertainty Quantification}
+
+  % APA format uses combined author/affiliation
+  \author{Joachim Vandekerckhove$^{a,\dagger}$ and Elizabeth L.\ Fox$^{b}$\vspace{3ex}}
+  \affiliation{%
+  $^a$ University of California, Irvine\\
+  $^b$ Air Force Research Laboratory\\\vspace{3ex}
+  $^\dagger$ To whom correspondence should be addressed. E-mail: joachim@uci.edu.}
+\else
+  % cidlab format uses individual author/affiliation with symbols
+  \title{Fast uncertainty quantification in cognitive modeling}
+
+  \author[a,*]{Joachim Vandekerckhove}
+  \author[b]{Elizabeth L.\ Fox}
+
+  \affil[a]{University of California, Irvine}
+  \affil[b]{Air Force Research Laboratory}
+
+  \leadauthor{Vandekerckhove} 
+    
+   \authorcontributions{All authors contributed to the final draft.}
+   \authordeclaration{This work was supported by a National Research Council Fellowship to JV.}
+   \correspondingauthor{\textsuperscript{*}Correspondence concerning this article should be addressed to Joachim Vandekerckhove (joachim@uci.edu).}
+   \equalauthors{}
+    
+   \dates{Draft of \today{}.  Planned outlet: \textit{Behavior Research Methods}.}
+    
+\fi
+
+% Abstract - format-specific
+\ifdefined\apaformat
+  % APA format uses \abstract command
+  \abstract{%
+    \input{includes/abstract}
+  }
+\fi
+
+% Keywords
+\keywords{cognitive modeling, diffusion model, bootstrap, uncertainty quantification, EZ diffusion}
+
+\graphicspath{{./figures/}}
+
+\let\citep\cite
+\let\citet\citeA
