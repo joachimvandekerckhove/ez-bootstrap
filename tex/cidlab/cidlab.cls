@@ -39,7 +39,7 @@
 \RequirePackage{microtype}
 
 %% Fonts and language
-\RequirePackage[utf8]{inputenc}
+% \RequirePackage[utf8]{inputenc}
 \RequirePackage[english]{babel}
 \RequirePackage{amsmath,amsfonts,amssymb}
 \RequirePackage{lmodern}
