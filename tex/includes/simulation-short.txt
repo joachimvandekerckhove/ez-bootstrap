@@ -1,0 +1,12 @@
+Coverage:
+  Boundary: 95.1%  (should be ≈ 95%)
+  Drift:    94.4%  (should be ≈ 95%)
+  NDT:      96.0%  (should be ≈ 95%)
+  Total:    87.1%  (should be ≈ 86%)
+
+Iteration timing statistics:
+  Mean:  0.16 ms
+  Std:   0.01 ms
+  Min:   0.15 ms
+  Max:   0.44 ms
+  Total: 3032.62 ms (includes overhead)

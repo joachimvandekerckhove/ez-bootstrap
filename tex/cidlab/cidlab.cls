@@ -70,7 +70,7 @@
 %% Set up main title page fonts 
 \newcommand{\headerfont}{\normalfont\sffamily\fontsize{7}{9} \selectfont}
 \newcommand{\footerfont}{\normalfont\sffamily\fontsize{7}{9} \selectfont}
-\newcommand{\titlefont}{\fontfamily{lmss}\bfseries\fontsize{22pt}{24pt}\selectfont}
+\newcommand{\titlefont}{\fontfamily{lmss}\bfseries\fontsize{21pt}{23pt}\selectfont}
 \newcommand{\dropcapfont}{\fontfamily{lmss}\bfseries\fontsize{26pt}{28pt}\selectfont}
 \newcommand{\datesfont}{\normalfont\sffamily\fontsize{7}{8}\selectfont}
 \newcommand{\absfont}{\normalfont\sffamily\bfseries\fontsize{8}{11}\selectfont}
@@ -287,7 +287,7 @@ cidlab.com
 \makeatletter
 \newcommand{\additionalelement}[1]{\def\@additionalelement{#1}}
 \newcommand{\dates}[1]{\def\@dates{#1}}
-\newcommand{\doi}[1]{\def\@doi{#1}}
+% \newcommand{\doi}[1]{\def\@doi{#1}}
 \newcommand{\leadauthor}[1]{\def\@leadauthor{#1}}
 \newcommand{\etal}[1]{\def\@etal{#1}}
 \newcommand{\keywords}[1]{\def\@keywords{#1}}

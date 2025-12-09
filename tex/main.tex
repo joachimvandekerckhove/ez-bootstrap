@@ -10,7 +10,7 @@
 \fi
 % Main document content starts here
 
-\input{includes/notes}%\shownotestrue
+\input{includes/notes}\shownotestrue
 \input{includes/macros}
 
 \usepackage{algorithm}
@@ -18,8 +18,6 @@
 \usepackage{listings}
 \lstset{extendedchars=true,upquote=true}
 % Handle UTF-8 characters in listings using literate option
-% This replaces the ≈ character (U+2248) with LaTeX math mode \approx
-% Note: The character must be specified exactly as it appears in the file
 \lstdefinestyle{utf8style}{
   extendedchars=true,
   upquote=true,
@@ -93,7 +91,16 @@ In the abstract, EZ bootstrap proceeds along the following steps:
 
 This procedure is formalized in Algorithm~\ref{alg:ez_bootstrap}. EZ bootstrap is fundamentally a transformation-of-variables approach to uncertainty estimation. Rather than resampling raw data and re-estimating parameters, we resample the summary statistics from their known distributions, then transform these resampled statistics through the inverse equations to obtain parameter estimates. This transformation preserves the statistical properties of the bootstrap while eliminating the computational cost of data resampling.
 
-\begin{algorithm}[t]
+\subsection{Transformation of variables for uncertainty quantification}
+Transformation of variables is a fundamental method in statistics for propagating uncertainty through deterministic transformations \cite{rice2006mathematical}. When a random variable $X$ with known distribution is transformed through a function $Y = g(X)$, the distribution of $Y$ can be derived using the change-of-variables formula. This technique is central to the EZ bootstrap method.
+
+In the context of uncertainty quantification, transformation of variables allows us to derive the distribution of parameter estimates from the distribution of summary statistics in EZ models. The inverse equations (Eq.~\ref{eq:generic:inv}) provide a deterministic transformation from summary statistics to parameters. By applying this transformation to bootstrap samples of the summary statistics, we obtain bootstrap samples of the parameters, which can then be used to quantify uncertainty.
+
+The key advantage of this approach is computational efficiency. Rather than resampling raw data and re-estimating parameters for each bootstrap sample---which would require expensive optimization or simulation---we resample the summary statistics from their known distributions and apply the analytical transformation. This eliminates the computational bottleneck while preserving the statistical properties of the bootstrap.
+
+The transformation-of-variables approach is made possible in EZ models particularly because the inverse transformation is analytical, smooth, and one-to-one (within the parameter space, or a relevant subspace thereof). 
+
+\begin{algorithm}[bt]
 \caption{EZ Bootstrap Procedure}
 \label{alg:ez_bootstrap}
 \begin{algorithmic}[1]
@@ -108,16 +115,6 @@ This procedure is formalized in Algorithm~\ref{alg:ez_bootstrap}. EZ bootstrap i
 \Return $\Theta^*$
 \end{algorithmic}
 \end{algorithm}
-
-\subsection{Transformation of variables for uncertainty quantification}
-Transformation of variables is a fundamental method in statistics for propagating uncertainty through deterministic transformations \cite{rice2006mathematical}. When a random variable $X$ with known distribution is transformed through a function $Y = g(X)$, the distribution of $Y$ can be derived using the change-of-variables formula. This technique is central to the EZ bootstrap method.
-
-In the context of uncertainty quantification, transformation of variables allows us to derive the distribution of parameter estimates from the distribution of summary statistics in EZ models. The inverse equations (Eq.~\ref{eq:generic:inv}) provide a deterministic transformation from summary statistics to parameters. By applying this transformation to bootstrap samples of the summary statistics, we obtain bootstrap samples of the parameters, which can then be used to quantify uncertainty.
-
-The key advantage of this approach is computational efficiency. Rather than resampling raw data and re-estimating parameters for each bootstrap sample---which would require expensive optimization or simulation---we resample the summary statistics from their known distributions and apply the analytical transformation. This eliminates the computational bottleneck while preserving the statistical properties of the bootstrap.
-
-The transformation-of-variables approach is made possible in EZ models particularly because the inverse transformation is analytical, smooth, and one-to-one (within the parameter space, or a relevant subspace thereof). 
-
 
 \subsection{Theoretical justification for coverage preservation} The bootstrap procedure maintains proper coverage properties when the inverse transformation $i: S \mapsto \theta$
 is a continuous, differentiable function. Under the bootstrap sampling scheme, we generate $S^*$ from its known distribution, then compute $\theta^* = i(S^*)$. Since $i$ is deterministic and the bootstrap samples $S^*$ have the correct sampling distributions, the transformed samples $\theta^*$ correctly represent the sampling distribution of the parameter estimates. This follows from the invariance property of bootstrap methods under smooth transformations \cite{rice2006mathematical}. The coverage properties are preserved because the bootstrap distribution of the transformed parameters matches the true sampling distribution of the parameter estimates, up to the accuracy of the assumed distributions for the summary statistics.
@@ -259,7 +256,7 @@ The EZ bootstrap method maintained excellent calibration even with the added com
 
 \subsection{Computational performance}
 
-The EZ bootstrap method is exceptionally computationally efficient. For Study~1, the method required a mean of only 0.22~ms per estimation (SD = 0.06~ms), enabling rapid uncertainty quantification. For Study~2, with the added complexity of the design matrix, the method required a mean of 1.33~ms per estimation (SD = 0.15~ms). These computation times demonstrate that the method makes real-time\footnote{We have a strict definition of ``real-time'' as less than the duration of one frame in a typical experimental setup -- usually at least 1/120th of a second or 8.33~ms.} uncertainty quantification feasible where traditional methods would be prohibitively slow.
+The EZ bootstrap method is exceptionally computationally efficient. \jv{Add CPU information here.} For Study~1, the method required a mean of only 0.22~ms per estimation (SD = 0.06~ms), enabling rapid uncertainty quantification. For Study~2, with the added complexity of the design matrix, the method required a mean of 1.33~ms per estimation (SD = 0.15~ms). These computation times demonstrate that the method makes real-time\footnote{We have a strict definition of ``real-time'' as less than the duration of one frame in a typical experimental setup -- usually at most 1/120th of a second or 8.33~ms.} uncertainty quantification feasible where traditional methods would be prohibitively slow.
 
 
 \section{Other models}
@@ -268,20 +265,23 @@ The EZ bootstrap method generalizes to any model in the EZ class -- that is, any
 
 \subsection{EZ circular diffusion model}
 
-The circular diffusion model \cite{Smith2016} extends the diffusion model to circular decision spaces, where evidence accumulation occurs in a two-dimensional disk rather than along a one-dimensional line. The model has four parameters: drift angle $\driftangle$, drift magnitude $\driftmag$, decision criterion (boundary radius) $\boundaryradius$, and non-decision time $\ndtcdm$. The EZ version of the circular diffusion model (EZ-CDM; \citeNP{QarehdaghiRad2024}) is a synthetic likelihood model that uses four summary statistics: circular mean of choice angles ($\MCA{}$), circular variance of choice angles ($\VCA{}$), mean response time ($\MRT{}$), and response time variance ($\VRT{}$).
+The circular diffusion model \cite{Smith2016} extends the diffusion model to circular decision spaces, where evidence accumulation occurs in a two-dimensional disk rather than along a one-dimensional line. The model has four parameters: drift angle $\driftangle$, drift magnitude $\driftmag$, decision criterion (boundary radius) $\boundaryradius$, and non-decision time $\ndtcdm$. The EZ version of the circular diffusion model (EZ-CDM; \citeNP{QarehdaghiRad2024}) is a synthetic likelihood model that uses four summary statistics: circular mean of choice angles ($\MCA{}$), circular variance of choice angles ($\VCA{}$), mean RT ($\MRT{}$), and RT variance ($\VRT{}$).
+\jv{Double check math here.}
 
-The forward equations $f_\text{CDM}: \left(\driftangle, \driftmag, \boundaryradius, \ndtcdm\right) \mapsto \left(\MCA{}, \VCA{}, \MRT{}, \VRT{}\right)$ map parameters to summary statistics. The choice-angle distribution is von Mises with mean $\mu = \driftangle$ and concentration $\kappa = \boundaryradius\driftmag$. The circular mean and variance are:
+The forward equations $f_\text{CDM}: \left(\driftangle, \driftmag, \boundaryradius, \ndtcdm\right) \mapsto \left(\MCA{}, \VCA{}, \MRT{}, \VRT{}\right)$ map parameters to summary statistics. The choice-angle distribution is von Mises with mean $\mu = \driftangle$ and concentration $\kappa = \boundaryradius\driftmag$.
+The circular mean and variance are:
 \begin{eqnarray}
 \MCA{} &=& \driftangle \nonumber\\
 R &=& \frac{I_1(\kappa)}{I_0(\kappa)}, \quad \VCA{} = 1 - R \nonumber
 \end{eqnarray}
 where $I_0$ and $I_1$ are modified Bessel functions of the first kind. The response time moments are:
 \begin{eqnarray}
-\MRT{} &=& \ndtcdm + \frac{\boundaryradius}{\driftmag} \frac{I_1(\boundaryradius\driftmag)}{I_0(\boundaryradius\driftmag)} \nonumber\\
-\VRT{} &=& \frac{\boundaryradius^2}{\driftmag^2} \left( \frac{I_1(\boundaryradius\driftmag)}{I_0(\boundaryradius\driftmag)} \right)^2 + \frac{2\boundaryradius}{\driftmag^3} \frac{I_1(\boundaryradius\driftmag)}{I_0(\boundaryradius\driftmag)} - \boundaryradius^2 \nonumber
+\MRT{} &=& \ndtcdm + \frac{\boundaryradius}{\driftmag} R \nonumber\\
+\VRT{} &=& \frac{\boundaryradius^2}{\driftmag^2} R^2 + \frac{2\boundaryradius}{\driftmag^3} R - \boundaryradius^2 \nonumber
 \end{eqnarray}
 
-The inverse equations $i_\text{CDM}: \left(\MCA{}, \VCA{}, \MRT{}, \VRT{}\right) \mapsto \left(\driftangle, \driftmag, \boundaryradius, \ndtcdm\right)$ map summary statistics to parameters. The estimation proceeds in four steps:
+The inverse equations $i_\text{CDM}: \left(\MCA{}, \VCA{}, \MRT{}, \VRT{}\right) \mapsto \left(\driftangle, \driftmag, \boundaryradius, \ndtcdm\right)$ map summary statistics to parameters. The estimation proceeds in four steps:%
+% \footnote{A standard approximation for solving $R = I_1(k)/I_0(k)$ for $k$ is the piecewise estimator of Fisher \cite[p.~88]{fisher1993circular}: $k \approx \begin{cases} 2R + R^{3} + \tfrac{5}{6}R^{5}, & R < 0.53,\\ -0.4 + 1.39R + \dfrac{0.43}{1-R}, & 0.53 \le R < 0.85,\\ \dfrac{1}{R^{3} - 4R^{2} + 3R}, & R \ge 0.85.\end{cases}$}
 \begin{eqnarray}
 \hat{\driftangle} &=& \MCA{} \nonumber\\
 R &=& 1 - \VCA{}, \quad \text{solve } \frac{I_1(\kappa)}{I_0(\kappa)} = R \text{ for } \kappa \nonumber\\
@@ -298,25 +298,25 @@ For the circular mean of choice angles (MCA), the angular error $\widehat{\drift
 \end{equation}
 where $A_1(\kappa) = I_1(\kappa)/I_0(\kappa)$. The variance decreases rapidly with concentration $\kappa$, making estimation most difficult when drift magnitude or boundary radius are small.
 
-For the circular variance (VCA), the mean resultant length $R = \sqrt{\bar{c}^2 + \bar{s}^2}$ is approximately normal for moderate-to-large $N$, with mean $A_1(\kappa)$ and variance:
+For the circular variance ($\VCA{}$), the mean resultant length $R = \sqrt{\bar{c}^2 + \bar{s}^2}$ is approximately normal for moderate-to-large $N$, with mean $A_1(\kappa)$ and variance:
 \begin{equation}
 \operatorname{Var}(R) \approx \frac{1 - A_1(\kappa)^2}{N} \nonumber
 \end{equation}
-Consequently, $\widehat{\mathrm{VCA}} = 1 - R$ is also asymptotically normal with the same variance. The circular variance is insensitive to outliers in angle (since angles wrap on the circle), but becomes unstable when $R$ is near zero.
+Consequently, $\widehat{\VCA{}} = 1 - R$ is also asymptotically normal with the same variance. The circular variance is insensitive to outliers in angle (since angles wrap on the circle), but becomes unstable when $R$ is near zero.
 
-For mean response time (MRT), the central limit theorem applies:
+For mean response time ($\MRT{}$), the central limit theorem applies:
 \begin{equation}
-\widehat{\mathrm{MRT}} \sim \mathcal{N}\left(E[T], \frac{\operatorname{Var}(T)}{N}\right) \nonumber
+\widehat{\MRT{}} \sim \mathcal{N}\left(E[T], \frac{\operatorname{Var}(T)}{N}\right) \nonumber
 \end{equation}
-where $E[T]$ and $\operatorname{Var}(T)$ are given by the forward equations. Mean RT is robust for large $N$ but highly sensitive to RT contaminants, with bias growing linearly in the contamination proportion.
+where $E[T]$ and $\operatorname{Var}(T)$ are given by the forward equations. Mean RT is robust for large $N$ but sensitive to RT contaminants.
 
-For response time variance (VRT), the sample variance is asymptotically normal but with slower convergence:
+For response time variance ($\VRT{}$), the sample variance is asymptotically normal but with slower convergence:
 \begin{equation}
-\widehat{\mathrm{VRT}} \sim \mathcal{N}\left(\operatorname{Var}(T), \frac{\mu_4 - \operatorname{Var}(T)^2}{N}\right) \nonumber
+\widehat{\VRT{}} \sim \mathcal{N}\left(\operatorname{Var}(T), \frac{\mu_4 - \operatorname{Var}(T)^2}{N}\right) \nonumber
 \end{equation}
-where $\mu_4$ is the fourth central moment of the RT distribution. This statistic is the most contamination-sensitive in EZ-CDM, as a small number of extreme RTs can cause large upward shifts.
+where $\mu_4$ is the fourth central moment of the RT distribution. This statistic is the most contamination-sensitive in EZ-CDM, as a small number of extreme RTs can cause large upward shifts (see \citeNP{chávez_de_la_peña_etal:preprint:hierarchical}, for a possible treatment using robust summary statistics).
 
-The EZ bootstrap procedure can be applied to EZ-CDM by resampling these statistics from their asymptotic distributions. The angle-based statistics (MCA and VCA) have well-behaved sampling distributions, while the RT-based statistics (MRT and VRT) introduce most of the sampling variability in the inversion system, especially when solving for drift magnitude and boundary radius.
+The EZ bootstrap procedure can be applied to EZ-CDM by resampling these statistics from their asymptotic distributions. The angle-based statistics ($\MCA{}$ and $\VCA{}$) have well-behaved sampling distributions, while the RT-based statistics ($\MRT{}$ and $\VRT{}$) introduce most of the sampling variability in the inversion system, especially when solving for drift magnitude and boundary radius.
 
 \subsection{One-high-threshold source-monitoring model}
 
@@ -346,7 +346,7 @@ The inverse equations provide closed-form parameter estimates:
 \Detect &=& \frac{\AAstat + \ABstat - 2\Guess}{1-2\Guess} \nonumber\\
 \Discrim &=& \frac{\AAstat - (1-\Detect)\Guess}{\Detect} \nonumber
 \end{eqnarray}
-These linear relationships allow closed-form inversion, illustrating one of the simplest nontrivial MPTs for which both forward and inverse transformations are available in closed form.
+These linear relationships allow closed-form inversion, illustrating a simple but nontrivial MPT for which both forward and inverse transformations are available in closed form.
 
 The sampling distributions for MPT models are multinomial: the observed counts in each response category follow a multinomial distribution with probabilities given by the forward equations. For old items from Source~A, the counts $(n_{\AAstat}, n_{\BAstat})$ follow:
 \begin{equation}
@@ -396,25 +396,16 @@ Perhaps most promisingly, implicit mappings from parameters to summary statistic
 \else
 \section{Appendix: Reproducing the simulation studies}
 \fi
-The simulation studies reported in this paper can be reproduced using the C implementation available in the \texttt{ez-bootstrap} GitHub repository (see \texttt{https://github.com/joachimvandekerckhove/ez-bootstrap}). The implementation requires the GNU Scientific Library (GSL) for random number generation and statistical distributions.
+The simulation studies reported in this paper can be reproduced using the C implementation available in the GitHub repository \texttt{joachimvandekerckhove/ez-bootstrap}. The implementation requires the GNU Scientific Library (GSL) for random number generation and statistical distributions.
 
-To reproduce the studies:
+To reproduce the simulation studies, first
+(1)~clone the repository, then
+(2)~install dependencies if needed (e.g., install \texttt{libgsl-dev} to obtain GSL development libraries on Debian/Ubuntu systems), and 
+(3)~run the simulation script
+\texttt{./run\_simulations.sh}.
 
-\begin{enumerate}
-\item Clone the repository %and navigate to the \texttt{cpp} directory.
-\item Install dependencies: GSL development libraries (e.g., \texttt{libgsl-dev} on Debian/Ubuntu systems).
-\item Build the executables by running \texttt{make}.
-\item Run the simulation script:
-\begin{verbatim}
-./run_simulations.sh
-\end{verbatim}
-\end{enumerate}
+The script executes both simulation studies with the following editable parameters: 10,000 simulation repetitions, sample size $n = 100$ trials per condition, and 1,000 bootstrap samples per repetition. The simulation outputs include coverage rates for each parameter (or beta weight) and computational performance metrics, for example:
 
-The script executes both simulation studies with the following parameters: 10,000 simulation repetitions, sample size $n = 100$ trials per condition, and 1,000 bootstrap samples per repetition. Study 1 evaluates coverage for the single-condition EZ diffusion model; Study 2 evaluates coverage for the design matrix extension with four conditions and three regression weights per parameter type.
+\lstinputlisting[basicstyle=\ttfamily\small,breaklines=true]{includes/simulation-short.txt}
 
-The simulation outputs include coverage rates for each parameter (or beta weight) and computational performance metrics. The random seed is set to 100 for reproducibility; this can be modified in the script to generate different random sequences while maintaining reproducibility.
-
-Full output of the simulation script is reproduced below:
-% \cleardoublepage
-\lstinputlisting[basicstyle=\ttfamily\small,breaklines=true,literate={≈}{{$\approx$}}1]{includes/simulation-output.txt}
 \end{document}
