@@ -305,7 +305,7 @@ Solving $R = I_1(k)/I_0(k)$ for $k$ is faciliated by the piecewise estimator of 
 % \textit{Sampling distributions.}
 The sampling distributions of the four summary statistics determine the variability and robustness of EZ-CDM parameter estimates. Under the simple CDM, choice angles follow a von Mises distribution with concentration $\kappa = \boundaryradius\driftmag$, and response times follow the first-passage-time distribution of a two-dimensional Bessel process with drift.
 
-For the circular mean of choice angles (MCA), the angular error $\widehat{\driftangle} - \driftangle$ is approximately normally distributed for large $N$, and so:
+For the circular mean of choice angles (MCA), the angular error $\widehat{\driftangle} - \driftangle$ is approximately normally distributed for large $N$ \cite{Fisher1993}, and so:
 \begin{equation}
 \widehat{\driftangle} \sim \mathcal{N}\left(\driftangle, \frac{1}{N\kappa R}\right). \nonumber
 \end{equation}
@@ -315,9 +315,9 @@ For the circular variance ($\VCA{}$), the mean resultant length $L = \sqrt{\bar{
 \begin{equation}
 \operatorname{Var}(L) \approx \frac{1 - R^2}{N} \nonumber
 \end{equation}
-Consequently, $\widehat{\VCA{}} = 1 - R$ is also asymptotically normal with the same variance. The circular variance is only weakly sensitive to outliers in angle (since angles wrap on the circle). However, parameter estimation becomes unstable when $R$ is near zero because: (1)~the variance of the estimator $\widehat{R}$ approaches $1/N$ (its maximum), making $\widehat{R}$ imprecise; (2)~when $R \approx 0$, the data are essentially uniform on the circle, providing little information about the concentration parameter $\kappa$; and (3)~the inverse transformation from $R$ to $\kappa$ (and subsequently to drift magnitude and boundary radius) becomes numerically sensitive to small errors in $\widehat{R}$.
+\cite{Fisher1993}. Consequently, $\widehat{\VCA{}} = 1 - R$ is also asymptotically normal with the same variance. The circular variance is only weakly sensitive to outliers in angle (since angles wrap on the circle). However, parameter estimation becomes unstable when $R$ is near zero because: (1)~the variance of the estimator $\widehat{R}$ approaches $1/N$ (its maximum), making $\widehat{R}$ imprecise; (2)~when $R \approx 0$, the data are essentially uniform on the circle, providing little information about the concentration parameter $\kappa$; and (3)~the inverse transformation from $R$ to $\kappa$ (and subsequently to drift magnitude and boundary radius) becomes numerically sensitive to small errors in $\widehat{R}$.
 
-For mean response time ($\MRT{}$), the central limit theorem applies:
+For mean response time ($\MRT{}$), the central limit theorem applies \cite{rice2006mathematical}:
 \begin{equation}
 \widehat{\MRT{}} \sim \mathcal{N}\left(\MRT{}, \frac{\VRT{}}{N}\right) \nonumber
 \end{equation}
