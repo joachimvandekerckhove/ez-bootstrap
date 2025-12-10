@@ -344,11 +344,11 @@ void simulation_design_matrix(int n_repetitions, int sample_size, int n_bootstra
         free(true_params);
         free(observations);
                 
-        // if ((rep + 1) % 100 == 0 || rep == n_repetitions - 1) {
-        //     printf("Progress: %d/%d (%.1f%%)\r", rep + 1, n_repetitions, 
-        //            100.0 * (rep + 1) / n_repetitions);
-        //     fflush(stdout);
-        // }
+        if ((rep + 1) % 100 == 0 || rep == n_repetitions - 1) {
+            printf("Progress: %d/%d (%.1f%%)\r", rep + 1, n_repetitions, 
+                   100.0 * (rep + 1) / n_repetitions);
+            fflush(stdout);
+        }
     }
     
     clock_t end_total = clock();

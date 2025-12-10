@@ -1,0 +1,45 @@
+EZ Circular Diffusion Model (EZ-CDM) - Design Matrix Simulation
+===============================================================
+
+True beta weights:
+  Drift angle:      0.00 0.50 1.00 
+  Drift magnitude:  0.50 0.70 0.90 
+  Boundary radius:  0.80 1.00 1.20 
+  NDT:              0.15 0.20 0.25 
+
+Sample size: 100
+Bootstrap repetitions: 1000
+Simulation repetitions: 10000
+Random seed: 1
+
+Progress: 100/10000 (1.0%)Progress: 200/10000 (2.0%)Progress: 300/10000 (3.0%)Progress: 400/10000 (4.0%)Progress: 500/10000 (5.0%)Progress: 600/10000 (6.0%)Progress: 700/10000 (7.0%)Progress: 800/10000 (8.0%)Progress: 900/10000 (9.0%)Progress: 1000/10000 (10.0%)Progress: 1100/10000 (11.0%)Progress: 1200/10000 (12.0%)Progress: 1300/10000 (13.0%)Progress: 1400/10000 (14.0%)Progress: 1500/10000 (15.0%)Progress: 1600/10000 (16.0%)Progress: 1700/10000 (17.0%)Progress: 1800/10000 (18.0%)Progress: 1900/10000 (19.0%)Progress: 2000/10000 (20.0%)Progress: 2100/10000 (21.0%)Progress: 2200/10000 (22.0%)Progress: 2300/10000 (23.0%)Progress: 2400/10000 (24.0%)Progress: 2500/10000 (25.0%)Progress: 2600/10000 (26.0%)Progress: 2700/10000 (27.0%)Progress: 2800/10000 (28.0%)Progress: 2900/10000 (29.0%)Progress: 3000/10000 (30.0%)Progress: 3100/10000 (31.0%)Progress: 3200/10000 (32.0%)Progress: 3300/10000 (33.0%)Progress: 3400/10000 (34.0%)Progress: 3500/10000 (35.0%)Progress: 3600/10000 (36.0%)Progress: 3700/10000 (37.0%)Progress: 3800/10000 (38.0%)Progress: 3900/10000 (39.0%)Progress: 4000/10000 (40.0%)Progress: 4100/10000 (41.0%)Progress: 4200/10000 (42.0%)Progress: 4300/10000 (43.0%)Progress: 4400/10000 (44.0%)Progress: 4500/10000 (45.0%)Progress: 4600/10000 (46.0%)Progress: 4700/10000 (47.0%)Progress: 4800/10000 (48.0%)Progress: 4900/10000 (49.0%)Progress: 5000/10000 (50.0%)Progress: 5100/10000 (51.0%)Progress: 5200/10000 (52.0%)Progress: 5300/10000 (53.0%)Progress: 5400/10000 (54.0%)Progress: 5500/10000 (55.0%)Progress: 5600/10000 (56.0%)Progress: 5700/10000 (57.0%)Progress: 5800/10000 (58.0%)Progress: 5900/10000 (59.0%)Progress: 6000/10000 (60.0%)Progress: 6100/10000 (61.0%)Progress: 6200/10000 (62.0%)Progress: 6300/10000 (63.0%)Progress: 6400/10000 (64.0%)Progress: 6500/10000 (65.0%)Progress: 6600/10000 (66.0%)Progress: 6700/10000 (67.0%)Progress: 6800/10000 (68.0%)Progress: 6900/10000 (69.0%)Progress: 7000/10000 (70.0%)Progress: 7100/10000 (71.0%)Progress: 7200/10000 (72.0%)Progress: 7300/10000 (73.0%)Progress: 7400/10000 (74.0%)Progress: 7500/10000 (75.0%)Progress: 7600/10000 (76.0%)Progress: 7700/10000 (77.0%)Progress: 7800/10000 (78.0%)Progress: 7900/10000 (79.0%)Progress: 8000/10000 (80.0%)Progress: 8100/10000 (81.0%)Progress: 8200/10000 (82.0%)Progress: 8300/10000 (83.0%)Progress: 8400/10000 (84.0%)Progress: 8500/10000 (85.0%)Progress: 8600/10000 (86.0%)Progress: 8700/10000 (87.0%)Progress: 8800/10000 (88.0%)Progress: 8900/10000 (89.0%)Progress: 9000/10000 (90.0%)Progress: 9100/10000 (91.0%)Progress: 9200/10000 (92.0%)Progress: 9300/10000 (93.0%)Progress: 9400/10000 (94.0%)Progress: 9500/10000 (95.0%)Progress: 9600/10000 (96.0%)Progress: 9700/10000 (97.0%)Progress: 9800/10000 (98.0%)Progress: 9900/10000 (99.0%)Progress: 10000/10000 (100.0%)
+
+========================================
+Simulation Results
+========================================
+
+Coverage (should be ≈ 95%):
+Drift angle weights:
+  Weight 1: 89.5%
+  Weight 2: 94.5%
+  Weight 3: 94.2%
+Drift magnitude weights:
+  Weight 1: 94.5%
+  Weight 2: 94.4%
+  Weight 3: 89.3%
+Boundary radius weights:
+  Weight 1: 95.8%
+  Weight 2: 94.8%
+  Weight 3: 93.0%
+NDT weights:
+  Weight 1: 95.8%
+  Weight 2: 95.6%
+  Weight 3: 92.8%
+
+Iteration timing statistics:
+  Mean:  1.28 ms
+  Std:   0.22 ms
+  Min:   1.08 ms
+  Max:   3.42 ms
+  Total: 19312.51 ms (includes overhead)
+

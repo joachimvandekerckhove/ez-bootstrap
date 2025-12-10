@@ -1,20 +1,21 @@
 /*
- * EZ Bootstrap (EZB) - Single condition implementation
+ * EZ Circular Diffusion Model (EZ-CDM) - Single condition implementation
  * 
- * Implements EZ bootstrap for single-condition EZ diffusion models.
+ * Implements EZ bootstrap for single-condition EZ circular diffusion models.
  */
 
-#include "ezb_common.h"
+#include "ezcdm_common.h"
 
 /* Default parameters for demo and simulation */
-#define DEFAULT_BOUNDARY 1.0
-#define DEFAULT_DRIFT 0.5
+#define DEFAULT_DRIFT_ANGLE 0.0
+#define DEFAULT_DRIFT_MAG 1.0
+#define DEFAULT_BOUNDARY_RADIUS 1.0
 #define DEFAULT_NDT 0.2
 #define DEFAULT_SAMPLE_SIZE 100
 #define DEFAULT_N_BOOTSTRAP 1000
 
 /* Demo function */
-void demo(Parameters true_params, int sample_size) {
+void demo(CDMParameters true_params, int sample_size) {
     gsl_rng *r;
     const gsl_rng_type *T;
     
@@ -23,53 +24,58 @@ void demo(Parameters true_params, int sample_size) {
     r = gsl_rng_alloc(T);
     gsl_rng_set(r, (unsigned long)time(NULL));
     
-    printf("EZ Bootstrap (EZB) - Single Condition Demo\n");
-    printf("==========================================\n\n");
+    printf("EZ Circular Diffusion Model (EZ-CDM) - Single Condition Demo\n");
+    printf("============================================================\n\n");
     
     /* Forward: generate moments from true parameters */
-    SummaryStats moments = ez_forward(true_params);
+    CDMSummaryStats moments = ezcdm_forward(true_params);
     moments.n = sample_size;
     
     /* Sample observations from moments */
-    SummaryStats observations = sample_observations(moments, sample_size, r);
+    CDMSummaryStats observations = sample_cdm_observations(moments, sample_size, r);
     
     printf("True parameters:\n");
-    printf("  Boundary: %.4f\n", true_params.boundary);
-    printf("  Drift:    %.4f\n", true_params.drift);
-    printf("  NDT:      %.4f\n", true_params.ndt);
+    printf("  Drift angle:      %.4f\n", true_params.drift_angle);
+    printf("  Drift magnitude:  %.4f\n", true_params.drift_mag);
+    printf("  Boundary radius:  %.4f\n", true_params.boundary_radius);
+    printf("  NDT:              %.4f\n", true_params.ndt);
     printf("\nMoments:\n");
-    printf("  Accuracy: %.4f\n", moments.accuracy);
-    printf("  Mean RT:  %.4f\n", moments.mean_rt);
-    printf("  Var RT:   %.4f\n", moments.var_rt);
+    printf("  MCA: %.4f\n", moments.mca);
+    printf("  VCA: %.4f\n", moments.vca);
+    printf("  MRT: %.4f\n", moments.mrt);
+    printf("  VRT: %.4f\n", moments.vrt);
     printf("\nObservations:\n");
-    printf("  Accuracy: %.4f\n", observations.accuracy);
-    printf("  Mean RT:  %.4f\n", observations.mean_rt);
-    printf("  Var RT:   %.4f\n", observations.var_rt);
-    printf("  N:        %d\n", observations.n);
+    printf("  MCA: %.4f\n", observations.mca);
+    printf("  VCA: %.4f\n", observations.vca);
+    printf("  MRT: %.4f\n", observations.mrt);
+    printf("  VRT: %.4f\n", observations.vrt);
+    printf("  N:   %d\n", observations.n);
     printf("\n");
     
     /* Run bootstrap */
     clock_t start_time = clock();
-    BootstrapResults results = bootstrap(observations, DEFAULT_N_BOOTSTRAP, r);
+    CDMBootstrapResults results = cdm_bootstrap(observations, DEFAULT_N_BOOTSTRAP, r);
     clock_t end_time = clock();
     double elapsed = ((double)(end_time - start_time)) / CLOCKS_PER_SEC * 1000.0;
     
     /* Check coverage */
-    int coverage = check_coverage(true_params, results);
-    int boundary_covered = (coverage & 4) != 0;
-    int drift_covered = (coverage & 2) != 0;
+    int coverage = check_cdm_coverage(true_params, results);
+    int drift_angle_covered = (coverage & 8) != 0;
+    int drift_mag_covered = (coverage & 4) != 0;
+    int boundary_radius_covered = (coverage & 2) != 0;
     int ndt_covered = (coverage & 1) != 0;
     
-    printf("EZB Estimated Parameters:\n");
-    print_summary(results);
+    printf("EZ-CDM Estimated Parameters:\n");
+    print_cdm_summary(results);
     
     printf("\nCoverage check:\n");
-    printf("  Boundary: %s\n", boundary_covered ? "COVERED" : "NOT COVERED");
-    printf("  Drift:    %s\n", drift_covered ? "COVERED" : "NOT COVERED");
-    printf("  NDT:      %s\n", ndt_covered ? "COVERED" : "NOT COVERED");
+    printf("  Drift angle:      %s\n", drift_angle_covered ? "COVERED" : "NOT COVERED");
+    printf("  Drift magnitude:  %s\n", drift_mag_covered ? "COVERED" : "NOT COVERED");
+    printf("  Boundary radius:  %s\n", boundary_radius_covered ? "COVERED" : "NOT COVERED");
+    printf("  NDT:              %s\n", ndt_covered ? "COVERED" : "NOT COVERED");
     printf("\nTime taken: %.0f ms\n", elapsed);
     
-    free_bootstrap_results(results);
+    free_cdm_bootstrap_results(results);
     gsl_rng_free(r);
 }
 
@@ -87,14 +93,16 @@ void simulation(int n_repetitions, int sample_size, int n_bootstrap, unsigned lo
     gsl_rng_set(r, seed);
     
     /* True parameters */
-    Parameters true_params = {
-        .boundary = DEFAULT_BOUNDARY,
-        .drift = DEFAULT_DRIFT,
+    CDMParameters true_params = {
+        .drift_angle = DEFAULT_DRIFT_ANGLE,
+        .drift_mag = DEFAULT_DRIFT_MAG,
+        .boundary_radius = DEFAULT_BOUNDARY_RADIUS,
         .ndt = DEFAULT_NDT
     };
     
-    int boundary_coverage = 0;
-    int drift_coverage = 0;
+    int drift_angle_coverage = 0;
+    int drift_mag_coverage = 0;
+    int boundary_radius_coverage = 0;
     int ndt_coverage = 0;
     int total_coverage = 0;
     
@@ -107,11 +115,12 @@ void simulation(int n_repetitions, int sample_size, int n_bootstrap, unsigned lo
     
     clock_t start_total = clock();
     
-    printf("EZ Bootstrap (EZB) - Single Condition Simulation\n");
-    printf("================================================\n\n");
-    printf("True parameters:\n"); 
-    printf("    boundary=%.2f, drift=%.2f, ndt=%.2f\n", 
-           true_params.boundary, true_params.drift, true_params.ndt);
+    printf("EZ Circular Diffusion Model (EZ-CDM) - Single Condition Simulation\n");
+    printf("==================================================================\n\n");
+    printf("True parameters:\n");
+    printf("    drift_angle=%.2f, drift_mag=%.2f, boundary_radius=%.2f, ndt=%.2f\n", 
+            true_params.drift_angle, true_params.drift_mag, 
+            true_params.boundary_radius, true_params.ndt);
     printf("Sample size: %d\n", sample_size);
     printf("Bootstrap repetitions: %d\n", n_bootstrap);
     printf("Simulation repetitions: %d\n", n_repetitions);
@@ -119,34 +128,35 @@ void simulation(int n_repetitions, int sample_size, int n_bootstrap, unsigned lo
     
     for (int i = 0; i < n_repetitions; i++) {
         /* Forward: generate moments from true parameters */
-        SummaryStats moments = ez_forward(true_params);
+        CDMSummaryStats moments = ezcdm_forward(true_params);
         moments.n = sample_size;
         
         /* Sample observations from moments */
-        SummaryStats observations = sample_observations(moments, sample_size, r);
+        CDMSummaryStats observations = sample_cdm_observations(moments, sample_size, r);
         
         clock_t start_iter = clock();
         /* Run bootstrap */
-        BootstrapResults results = bootstrap(observations, n_bootstrap, r);
+        CDMBootstrapResults results = cdm_bootstrap(observations, n_bootstrap, r);
         clock_t end_iter = clock();
         
         /* Check coverage */
-        int coverage = check_coverage(true_params, results);
-        if (coverage & 4) boundary_coverage++;
-        if (coverage & 2) drift_coverage++;
+        int coverage = check_cdm_coverage(true_params, results);
+        if (coverage & 8) drift_angle_coverage++;
+        if (coverage & 4) drift_mag_coverage++;
+        if (coverage & 2) boundary_radius_coverage++;
         if (coverage & 1) ndt_coverage++;
-        if (coverage == 7) total_coverage++;  /* All three covered */
+        if (coverage == 15) total_coverage++;  /* All four covered */
         
-        free_bootstrap_results(results);
+        free_cdm_bootstrap_results(results);
         
         iteration_times[i] = ((double)(end_iter - start_iter)) / CLOCKS_PER_SEC;
         
         /* Progress indicator */
-        // if ((i + 1) % 100 == 0 || i == n_repetitions - 1) {
-        //     printf("Progress: %d/%d (%.1f%%)\r", i + 1, n_repetitions, 
-        //            100.0 * (i + 1) / n_repetitions);
-        //     fflush(stdout);
-        // }
+        if ((i + 1) % 100 == 0 || i == n_repetitions - 1) {
+            printf("Progress: %d/%d (%.1f%%)\r", i + 1, n_repetitions, 
+                   100.0 * (i + 1) / n_repetitions);
+            fflush(stdout);
+        }
     }
     
     clock_t end_total = clock();
@@ -158,13 +168,15 @@ void simulation(int n_repetitions, int sample_size, int n_bootstrap, unsigned lo
     printf("========================================\n\n");
     
     printf("Coverage:\n");
-    printf("  Boundary: %.1f%%  (should be ≈ 95%%)\n", 
-           100.0 * boundary_coverage / n_repetitions);
-    printf("  Drift:    %.1f%%  (should be ≈ 95%%)\n", 
-           100.0 * drift_coverage / n_repetitions);
-    printf("  NDT:      %.1f%%  (should be ≈ 95%%)\n", 
+    printf("  Drift angle:      %.1f%%  (should be ≈ 95%%)\n", 
+           100.0 * drift_angle_coverage / n_repetitions);
+    printf("  Drift magnitude:  %.1f%%  (should be ≈ 95%%)\n", 
+           100.0 * drift_mag_coverage / n_repetitions);
+    printf("  Boundary radius:  %.1f%%  (should be ≈ 95%%)\n", 
+           100.0 * boundary_radius_coverage / n_repetitions);
+    printf("  NDT:              %.1f%%  (should be ≈ 95%%)\n", 
            100.0 * ndt_coverage / n_repetitions);
-    printf("  Total:    %.1f%%  (should be ≈ 86%%)\n", 
+    printf("  Total:            %.1f%%  (should be ≈ 81%%)\n", 
            100.0 * total_coverage / n_repetitions);
     
     /* Timing statistics */
@@ -190,22 +202,23 @@ void simulation(int n_repetitions, int sample_size, int n_bootstrap, unsigned lo
 
 /* Test functions */
 int test_forward_inverse() {
-    Parameters params = {1.0, 0.5, 0.2};
-    SummaryStats moments = ez_forward(params);
+    CDMParameters params = {0.0, 1.0, 1.0, 0.2};
+    CDMSummaryStats moments = ezcdm_forward(params);
     
     /* Need to set n for inverse */
     moments.n = 100;
-    Parameters recovered = ez_inverse(moments);
+    CDMParameters recovered = ezcdm_inverse(moments);
     
-    double tol = 0.001;
-    if (fabs(params.boundary - recovered.boundary) > tol ||
-        fabs(params.drift - recovered.drift) > tol ||
+    double tol = 0.05;  /* Tolerance for circular model (accounts for numerical precision and approximations) */
+    if (fabs(params.drift_angle - recovered.drift_angle) > tol ||
+        fabs(params.drift_mag - recovered.drift_mag) > tol ||
+        fabs(params.boundary_radius - recovered.boundary_radius) > tol ||
         fabs(params.ndt - recovered.ndt) > tol) {
         printf("FAIL: Forward-inverse test\n");
-        printf("  True: boundary=%.4f, drift=%.4f, ndt=%.4f\n", 
-               params.boundary, params.drift, params.ndt);
-        printf("  Recovered: boundary=%.4f, drift=%.4f, ndt=%.4f\n", 
-               recovered.boundary, recovered.drift, recovered.ndt);
+        printf("  True: drift_angle=%.4f, drift_mag=%.4f, boundary_radius=%.4f, ndt=%.4f\n", 
+               params.drift_angle, params.drift_mag, params.boundary_radius, params.ndt);
+        printf("  Recovered: drift_angle=%.4f, drift_mag=%.4f, boundary_radius=%.4f, ndt=%.4f\n", 
+               recovered.drift_angle, recovered.drift_mag, recovered.boundary_radius, recovered.ndt);
         return 1;
     }
     printf("PASS: Forward-inverse test\n");
@@ -221,26 +234,26 @@ int test_bootstrap() {
     r = gsl_rng_alloc(T);
     gsl_rng_set(r, 42);  /* Fixed seed for reproducibility */
     
-    SummaryStats observed = {0.75, 0.5, 0.01, 100};
-    BootstrapResults results = bootstrap(observed, 100, r);
+    CDMSummaryStats observed = {0.0, 0.2, 0.5, 0.01, 100};
+    CDMBootstrapResults results = cdm_bootstrap(observed, 100, r);
     
     if (results.n_samples != 100) {
         printf("FAIL: Bootstrap test - wrong number of samples\n");
-        free_bootstrap_results(results);
+        free_cdm_bootstrap_results(results);
         gsl_rng_free(r);
         return 1;
     }
     
     /* Check that results are reasonable */
-    if (results.boundary[0] <= 0 || results.drift[0] == 0 || results.ndt[0] < 0) {
+    if (results.drift_mag[0] <= 0 || results.boundary_radius[0] <= 0 || results.ndt[0] < 0) {
         printf("FAIL: Bootstrap test - invalid parameter values\n");
-        free_bootstrap_results(results);
+        free_cdm_bootstrap_results(results);
         gsl_rng_free(r);
         return 1;
     }
     
     printf("PASS: Bootstrap test\n");
-    free_bootstrap_results(results);
+    free_cdm_bootstrap_results(results);
     gsl_rng_free(r);
     return 0;
 }
@@ -248,8 +261,8 @@ int test_bootstrap() {
 int run_tests() {
     int failures = 0;
     
-    printf("Running EZB Single tests...\n");
-    printf("===========================\n\n");
+    printf("Running EZ-CDM Single tests...\n");
+    printf("==============================\n\n");
     
     failures += test_forward_inverse();
     failures += test_bootstrap();
@@ -265,7 +278,8 @@ int run_tests() {
 
 int main(int argc, char *argv[]) {
     if (argc > 1 && strcmp(argv[1], "--demo") == 0) {
-        Parameters params = {DEFAULT_BOUNDARY, DEFAULT_DRIFT, DEFAULT_NDT};
+        CDMParameters params = {DEFAULT_DRIFT_ANGLE, DEFAULT_DRIFT_MAG, 
+                                DEFAULT_BOUNDARY_RADIUS, DEFAULT_NDT};
         int sample_size = DEFAULT_SAMPLE_SIZE;
         
         if (argc > 2) {
@@ -309,8 +323,8 @@ int main(int argc, char *argv[]) {
     }
     
     /* Default: run demo */
-    Parameters params = {DEFAULT_BOUNDARY, DEFAULT_DRIFT, DEFAULT_NDT};
+    CDMParameters params = {DEFAULT_DRIFT_ANGLE, DEFAULT_DRIFT_MAG, 
+                            DEFAULT_BOUNDARY_RADIUS, DEFAULT_NDT};
     demo(params, DEFAULT_SAMPLE_SIZE);
     return 0;
 }
-

@@ -1,32 +1,54 @@
-# Makefile for EZ Bootstrap (EZB) C implementation using GSL
+# Makefile for EZ Bootstrap implementations using GSL
+# Builds both EZ-DDM (drift diffusion model) and EZ-CDM (circular diffusion model)
 
 CC = gcc
 CFLAGS = -Wall -Wextra -O2 -std=c99
 LDFLAGS = -lgsl -lgslcblas -lm
 
-# Common source
-COMMON_SRC = ezb_common.c
-COMMON_OBJ = ezb_common.o
+# EZ-DDM (Drift Diffusion Model) targets
+EZDDM_DIR = ezddm
+EZDDM_COMMON_SRC = $(EZDDM_DIR)/ezb_common.c
+EZDDM_COMMON_OBJ = $(EZDDM_DIR)/ezb_common.o
+EZDDM_TARGETS = $(EZDDM_DIR)/ezb_single $(EZDDM_DIR)/ezb_design_matrix $(EZDDM_DIR)/test_ezb
 
-# Targets
-TARGETS = ezb_single ezb_design_matrix test_ezb
+# EZ-CDM (Circular Diffusion Model) targets
+EZCDM_DIR = ezcdm
+EZCDM_COMMON_SRC = $(EZCDM_DIR)/ezcdm_common.c
+EZCDM_COMMON_OBJ = $(EZCDM_DIR)/ezcdm_common.o
+EZCDM_TARGETS = $(EZCDM_DIR)/ezcdm_single $(EZCDM_DIR)/ezcdm_design_matrix $(EZCDM_DIR)/test_ezcdm
+
+# All targets
+TARGETS = $(EZDDM_TARGETS) $(EZCDM_TARGETS)
 
 all: $(TARGETS)
 
-ezb_single: ezb_single.c $(COMMON_OBJ)
-	$(CC) $(CFLAGS) -o $@ $< $(COMMON_OBJ) $(LDFLAGS)
+# EZ-DDM targets
+$(EZDDM_DIR)/ezb_single: $(EZDDM_DIR)/ezb_single.c $(EZDDM_COMMON_OBJ)
+	$(CC) $(CFLAGS) -o $@ $< $(EZDDM_COMMON_OBJ) $(LDFLAGS)
 
-ezb_design_matrix: ezb_design_matrix.c ezb_design_matrix_impl.c $(COMMON_OBJ)
-	$(CC) $(CFLAGS) -o $@ ezb_design_matrix.c ezb_design_matrix_impl.c $(COMMON_OBJ) $(LDFLAGS)
+$(EZDDM_DIR)/ezb_design_matrix: $(EZDDM_DIR)/ezb_design_matrix.c $(EZDDM_DIR)/ezb_design_matrix_impl.c $(EZDDM_COMMON_OBJ)
+	$(CC) $(CFLAGS) -o $@ $(EZDDM_DIR)/ezb_design_matrix.c $(EZDDM_DIR)/ezb_design_matrix_impl.c $(EZDDM_COMMON_OBJ) $(LDFLAGS)
 
-test_ezb: test_ezb.c
+$(EZDDM_DIR)/test_ezb: $(EZDDM_DIR)/test_ezb.c
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
-$(COMMON_OBJ): $(COMMON_SRC) ezb_common.h
-	$(CC) $(CFLAGS) -c -o $@ $(COMMON_SRC)
+$(EZDDM_COMMON_OBJ): $(EZDDM_COMMON_SRC) $(EZDDM_DIR)/ezb_common.h
+	$(CC) $(CFLAGS) -c -o $@ $(EZDDM_COMMON_SRC)
+
+# EZ-CDM targets
+$(EZCDM_DIR)/ezcdm_single: $(EZCDM_DIR)/ezcdm_single.c $(EZCDM_COMMON_OBJ)
+	$(CC) $(CFLAGS) -o $@ $< $(EZCDM_COMMON_OBJ) $(LDFLAGS)
+
+$(EZCDM_DIR)/ezcdm_design_matrix: $(EZCDM_DIR)/ezcdm_design_matrix.c $(EZCDM_DIR)/ezcdm_design_matrix_impl.c $(EZCDM_COMMON_OBJ)
+	$(CC) $(CFLAGS) -o $@ $(EZCDM_DIR)/ezcdm_design_matrix.c $(EZCDM_DIR)/ezcdm_design_matrix_impl.c $(EZCDM_COMMON_OBJ) $(LDFLAGS)
+
+$(EZCDM_DIR)/test_ezcdm: $(EZCDM_DIR)/test_ezcdm.c
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+$(EZCDM_COMMON_OBJ): $(EZCDM_COMMON_SRC) $(EZCDM_DIR)/ezcdm_common.h
+	$(CC) $(CFLAGS) -c -o $@ $(EZCDM_COMMON_SRC)
 
 clean:
-	rm -f $(TARGETS) $(COMMON_OBJ) *.o
+	rm -f $(TARGETS) $(EZDDM_COMMON_OBJ) $(EZCDM_COMMON_OBJ) $(EZDDM_DIR)/*.o $(EZCDM_DIR)/*.o
 
 .PHONY: all clean
-
