@@ -301,6 +301,7 @@ R &=& 1 - \VCA{}, \quad \text{solve } \frac{I_1(\kappa)}{I_0(\kappa)} = R \text{
 \end{eqnarray}
 where the solution for $\hat{\driftmag}^2$ is obtained by solving the quadratic equation derived from the forward equation for $\VRT{}$.
 Solving $R = I_1(k)/I_0(k)$ for $k$ is faciliated by the piecewise estimator of \citeA[p.~88]{Fisher1993}: $$k \approx \begin{cases} 2R + R^{3} + \tfrac{5}{6}R^{5}, & R < 0.53,\\ -0.4 + 1.39R + \dfrac{0.43}{1-R}, & 0.53 \le R < 0.85,\\ \dfrac{1}{R^{3} - 4R^{2} + 3R}, & R \ge 0.85.\end{cases}$$
+Alternatively, the Newton-Raphson method can be used \cite{QarehdaghiRad2024}. This approach typically provides higher accuracy than the piecewise approximation but requires extra computational effort.
 
 % \textit{Sampling distributions.}
 The sampling distributions of the four summary statistics determine the variability and robustness of EZ-CDM parameter estimates. Under the CDM, choice angles follow a von Mises distribution with concentration $\kappa = \boundaryradius\driftmag$, and response times follow the first-passage-time distribution of a two-dimensional Bessel process with drift.
