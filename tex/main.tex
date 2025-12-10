@@ -305,29 +305,29 @@ Solving $R = I_1(k)/I_0(k)$ for $k$ is faciliated by the piecewise estimator of 
 % \textit{Sampling distributions.}
 The sampling distributions of the four summary statistics determine the variability and robustness of EZ-CDM parameter estimates. Under the simple CDM, choice angles follow a von Mises distribution with concentration $\kappa = \boundaryradius\driftmag$, and response times follow the first-passage-time distribution of a two-dimensional Bessel process with drift.
 
-For the circular mean of choice angles (MCA), the angular error $\widehat{\driftangle} - \driftangle$ is approximately normally distributed for large $N$:
+For the circular mean of choice angles (MCA), the angular error $\widehat{\driftangle} - \driftangle$ is approximately normally distributed for large $N$, and so:
 \begin{equation}
-\widehat{\driftangle} - \driftangle \sim \mathcal{N}\left(0, \frac{1}{N\kappa R}\right) \nonumber
+\widehat{\driftangle} \sim \mathcal{N}\left(\driftangle, \frac{1}{N\kappa R}\right). \nonumber
 \end{equation}
-where $R = I_1(\kappa)/I_0(\kappa)$. The variance decreases rapidly with concentration $\kappa$, making estimation most difficult when drift magnitude or boundary radius are small.
+The variance decreases rapidly with concentration $\kappa$, making estimation more difficult when drift magnitude or boundary radius are small.
 
-For the circular variance ($\VCA{}$), the mean resultant length $R = \sqrt{\bar{c}^2 + \bar{s}^2}$ is approximately normal for moderate-to-large $N$, with mean $R$ and variance:
+For the circular variance ($\VCA{}$), the mean resultant length $L = \sqrt{\bar{c}^2 + \bar{s}^2}$ is approximately normal for moderate-to-large $N$, where $\bar{c} = \frac{1}{N}\sum_{i=1}^{N} \cos(\theta_i)$ and $\bar{s} = \frac{1}{N}\sum_{i=1}^{N} \sin(\theta_i)$ are the mean cosine and mean sine of the observed angles, respectively. The mean resultant length $L$ has mean $R$ and variance:
 \begin{equation}
-\operatorname{Var}(R) \approx \frac{1 - R^2}{N} \nonumber
+\operatorname{Var}(L) \approx \frac{1 - R^2}{N} \nonumber
 \end{equation}
-Consequently, $\widehat{\VCA{}} = 1 - R$ is also asymptotically normal with the same variance. The circular variance is insensitive to outliers in angle (since angles wrap on the circle), but becomes unstable when $R$ is near zero.
+Consequently, $\widehat{\VCA{}} = 1 - R$ is also asymptotically normal with the same variance. The circular variance is only weakly sensitive to outliers in angle (since angles wrap on the circle). However, parameter estimation becomes unstable when $R$ is near zero because: (1)~the variance of the estimator $\widehat{R}$ approaches $1/N$ (its maximum), making $\widehat{R}$ imprecise; (2)~when $R \approx 0$, the data are essentially uniform on the circle, providing little information about the concentration parameter $\kappa$; and (3)~the inverse transformation from $R$ to $\kappa$ (and subsequently to drift magnitude and boundary radius) becomes numerically sensitive to small errors in $\widehat{R}$.
 
 For mean response time ($\MRT{}$), the central limit theorem applies:
 \begin{equation}
-\widehat{\MRT{}} \sim \mathcal{N}\left(E[T], \frac{\operatorname{Var}(T)}{N}\right) \nonumber
+\widehat{\MRT{}} \sim \mathcal{N}\left(\MRT{}, \frac{\VRT{}}{N}\right) \nonumber
 \end{equation}
-where $E[T]$ and $\operatorname{Var}(T)$ are given by the forward equations. Mean RT is robust for large $N$ but sensitive to RT contaminants.
+Mean RT is robust for large $N$ but sensitive to RT contaminants.
 
 For response time variance ($\VRT{}$), the sample variance is asymptotically normal but with slower convergence:
 \begin{equation}
-\widehat{\VRT{}} \sim \mathcal{N}\left(\operatorname{Var}(T), \frac{\mu_4 - \operatorname{Var}(T)^2}{N}\right) \nonumber
+\widehat{\VRT{}} \sim \mathcal{N}\left(\VRT{}, \frac{m_4 - \VRT{}^2}{N}\right) \nonumber
 \end{equation}
-where $\mu_4$ is the fourth central moment of the RT distribution. This statistic is the most contamination-sensitive in EZ-CDM, as a small number of extreme RTs can cause large upward shifts (see \citeNP{chávez_de_la_peña_etal:preprint:hierarchical}, for a possible treatment using robust summary statistics).
+where $m_4$ is the fourth central moment of the RT distribution. This statistic is the most contamination-sensitive in EZ-CDM, as a small number of extreme RTs can cause large upward shifts (see \citeNP{chávez_de_la_peña_etal:preprint:hierarchical}, for a possible treatment using robust summary statistics).
 
 The EZ bootstrap procedure can be applied to EZ-CDM by resampling these statistics from their asymptotic distributions. The angle-based statistics ($\MCA{}$ and $\VCA{}$) have well-behaved sampling distributions, while the RT-based statistics ($\MRT{}$ and $\VRT{}$) introduce most of the sampling variability in the inversion system, especially when solving for drift magnitude and boundary radius.
 
