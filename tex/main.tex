@@ -256,7 +256,7 @@ Each condition had $n = 100$ trials. We conducted 10,000 simulation repetitions,
 The EZ bootstrap method maintained excellent calibration even with the added complexity of the design matrix structure. For boundary weights, coverage rates were 95.7\%, 94.9\%, and 96.6\% across the three weights. For drift weights, coverage rates were 94.6\%, 94.2\%, and 98.0\%. For non-decision time weights, coverage rates were 96.2\%, 94.3\%, and 94.7\%. All coverage rates were within expected sampling variation of the nominal 95\% level.
 
 \subsubsection{Computational performance} 
-The EZ bootstrap method is exceptionally computationally efficient. The simulations were run on an off-the-shelf laptop, using a single core of an 11th Gen Intel\textregistered{} Core\texttrademark{} i7-1195G7 processor running at 2.90GHz.  For Study~1, the method required a mean of only 0.16~ms per estimation (SD = 0.01~ms), enabling rapid uncertainty quantification. For Study~2, with the added complexity of the design matrix, the method required a mean of 0.92~ms per estimation (SD = 0.07~ms). These computation times demonstrate that the method makes real-time\footnote{We have a strict definition of ``real-time'' as less than the duration of one frame in a typical experimental setup -- usually at most 1/120th of a second or 8.33~ms.} uncertainty quantification feasible where traditional methods would be prohibitively slow.
+The EZ bootstrap method is exceptionally computationally efficient. The simulations were run on an off-the-shelf laptop, using a single core of an 11th Gen Intel\textregistered{} Core\texttrademark{} i7-1195G7 processor running at 2.90GHz.  For Study~1, the method required a mean of only 0.16~ms per estimation (SD = 0.02~ms), enabling rapid uncertainty quantification. For Study~2, with the added complexity of the design matrix, the method required a mean of 0.95~ms per estimation (SD = 0.13~ms). These computation times demonstrate that the method makes real-time\footnote{We have a strict definition of ``real-time'' as less than the duration of one frame in a typical experimental setup -- usually at most 1/120th of a second or 8.33~ms.} uncertainty quantification feasible where traditional methods would be prohibitively slow.
 
 
 \section{Application to the circular diffusion model}
@@ -343,7 +343,7 @@ We present two standard calibration studies to validate the EZ bootstrap method 
 In Study 1, we evaluated coverage for the regular EZ circular diffusion model with a single condition. We simulated $n = 100$ trials from true parameters $\driftangle = 0.0$, $\driftmag = 1.0$, $\boundaryradius = 1.0$, and $\ndtcdm = 0.2$. For each of 10,000 simulation repetitions, we computed credible intervals at the 95\% confidence level using the EZ bootstrap method (with $1000$ bootstrap samples). 
 
 % \textit{Results.}
-We evaluated coverage at the 95\% confidence level across 10,000 simulation repetitions. The EZ bootstrap method achieved excellent calibration. Coverage rates were 93.9\%, 94.4\%, 94.7\%, and 95.5\% for drift angle, drift magnitude, boundary radius, and non-decision time, respectively---all within expected sampling variation of the nominal 95\% level. When considering all four parameters simultaneously, the coverage rate was 88.1\%, closely matching the expected value ($0.95^4 \approx 0.815$).
+We evaluated coverage at the 95\% confidence level across 10,000 simulation repetitions. The EZ bootstrap method achieved excellent calibration. Coverage rates were 93.9\%, 94.3\%, 95.2\%, and 94.8\% for drift angle, drift magnitude, boundary radius, and non-decision time, respectively---all within expected sampling variation of the nominal 95\% level. When considering all four parameters simultaneously, the coverage rate was 82.4\%, closely matching the expected value ($0.95^4 \approx 0.815$).
 
 \subsubsection{Study 2: Design matrix extension}
 In Study 2, we evaluated coverage for the EZ circular diffusion model with a design matrix extension. We simulated data from four conditions using a design matrix with three regression weights for each parameter type (drift angle, drift magnitude, boundary radius, and non-decision time), resulting in 12 beta weight parameters total. The true beta weights were: drift angle weights $[0.0, 0.5, 1.0]$, drift magnitude weights $[0.5, 0.7, 0.9]$, boundary radius weights $[0.8, 1.0, 1.2]$, and non-decision time weights $[0.15, 0.2, 0.25]$. 
@@ -372,16 +372,16 @@ X_{\ndtcdm} = \begin{pmatrix}
 1 & 0 & 0 \\
 0 & 1 & 0 \\
 0 & 0 & 1 \\
-0 & 1 & 0
+0 & 0 & 1
 \end{pmatrix} 
 $$
 where each row corresponds to a condition and each column corresponds to a regression weight.
 Each condition had $n = 100$ trials. We conducted 10,000 simulation repetitions, computing credible intervals at the 95\% confidence level using EZ bootstrap (with $1000$ bootstrap samples).
 
-The EZ bootstrap method maintained excellent calibration even with the added complexity of the design matrix structure. For drift angle weights, coverage rates were 89.5\%, 94.5\%, and 94.2\% across the three weights. For drift magnitude weights, coverage rates were 94.5\%, 94.4\%, and 89.3\%. For boundary radius weights, coverage rates were 95.8\%, 94.8\%, and 93.0\%. For non-decision time weights, coverage rates were 95.8\%, 95.6\%, and 92.8\%. All coverage rates were within expected sampling variation of the nominal 95\% level.
+The EZ bootstrap method maintained excellent calibration even with the added complexity of the design matrix structure. For drift angle weights, coverage rates were 89.5\%, 94.5\%, and 94.2\% across the three weights. For drift magnitude weights, coverage rates were 94.5\%, 94.4\%, and 89.3\%. For boundary radius weights, coverage rates were 95.8\%, 94.8\%, and 93.0\%. For non-decision time weights, coverage rates were 95.8\%, 94.6\%, and 95.7\%. All coverage rates were within expected sampling variation of the nominal 95\% level.
 
 \subsubsection{Computational performance}
-The EZ bootstrap method is exceptionally computationally efficient for EZ-CDM. For Study~1, the method required a mean of only 0.18~ms per estimation (SD = 0.01~ms), enabling rapid uncertainty quantification. For Study~2, with the added complexity of the design matrix, the method required a mean of 1.24~ms per estimation (SD = 0.17~ms). As with the DDM, these computation times allow for real-time uncertainty quantification.
+The EZ bootstrap method is exceptionally computationally efficient for EZ-CDM. For Study~1, the method required a mean of only 0.33~ms per estimation (SD = 0.03~ms), enabling rapid uncertainty quantification. For Study~2, with the added complexity of the design matrix, the method required a mean of 1.26~ms per estimation (SD = 0.19~ms). As with the DDM, these computation times allow for real-time uncertainty quantification.
 
 \section{Other models}
 

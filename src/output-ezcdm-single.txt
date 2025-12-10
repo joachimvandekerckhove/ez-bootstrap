@@ -22,9 +22,9 @@ Coverage:
   Total:            82.4%  (should be ≈ 81%)
 
 Iteration timing statistics:
-  Mean:  0.34 ms
-  Std:   0.04 ms
+  Mean:  0.33 ms
+  Std:   0.03 ms
   Min:   0.31 ms
-  Max:   0.88 ms
-  Total: 5334.29 ms (includes overhead)
+  Max:   0.87 ms
+  Total: 5285.26 ms (includes overhead)
 
