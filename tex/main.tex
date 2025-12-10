@@ -445,9 +445,12 @@ The method's success relies on the synthetic likelihood structure of EZ models. 
 
 The bootstrap method has a few limitations worth pointing out:
 \begin{itemize}
-  \item \textbf{Model scope:} The method is limited to the class of EZ models and their design matrix extensions. While all identifiable models \textit{have} both the forward and inverse equations, they are often not known or mathematically inconvenient.
-  \item \textbf{Distributional assumptions:} The method requires that summary statistics have known or approximately known sampling distributions. The normal approximation for mean RT and Gamma approximation for variance are asymptotically valid but may be less accurate for very small samples ($n < 30$) or when RT distributions are highly skewed, but good approximations of sampling distributions are known for very many summary statistics.
-  \item \textbf{Independence assumption:} We assume approximate independence between summary statistics. While this holds asymptotically and is approximately valid for sufficiently large samples, correlations may be non-negligible for very small samples or models beyond our consideration.
+  \item 
+  \textbf{Model scope:} The method is limited to the class of EZ models and their design matrix extensions. While all identifiable models \textit{have} both the forward and inverse equations, they are often not known or mathematically inconvenient.
+  \item
+  \textbf{Distributional assumptions:} The method requires that summary statistics have known or approximately known sampling distributions. The normal approximation for mean RT and Gamma approximation for variance are asymptotically valid but may be less accurate for very small samples ($n < 30$) or when RT distributions are highly skewed, but good approximations of sampling distributions are known for very many summary statistics.
+  \item
+  \textbf{Independence assumption:} We assume approximate independence between summary statistics. While this holds asymptotically and is approximately valid for sufficiently large samples, correlations may be non-negligible for very small samples or models beyond our consideration.
 \end{itemize}
 
 
