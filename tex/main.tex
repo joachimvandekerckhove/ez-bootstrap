@@ -334,7 +334,7 @@ The EZ bootstrap procedure can be applied to EZ-CDM by resampling these statisti
 
 \subsection{Simulation studies}
 
-We present two standard calibration studies to validate the EZ bootstrap method for the EZ circular diffusion model.  In both cases, the target of the study was the calibration of the uncertainty quantification in terms of credibility interval coverage -- that is, we sought to confirm that credibility intervals contain the true value at a rate commensurate to their nominal coverage probability (specifically, that 95\% credible intervals contain the true value 95\% of the time).
+We again present two standard calibration studies to validate the EZ bootstrap method for the EZ circular diffusion model.  The target of the study was again the calibration of the uncertainty quantification in terms of credibility interval coverage (95\% credibility).
 
 \subsubsection{Study 1: Single condition}
 In Study 1, we evaluated coverage for the regular EZ circular diffusion model with a single condition. We simulated $n = 100$ trials from true parameters $\driftangle = 0.0$, $\driftmag = 1.0$, $\boundaryradius = 1.0$, and $\ndtcdm = 0.2$. For each of 10,000 simulation repetitions, we computed credible intervals at the 95\% confidence level using the EZ bootstrap method (with $1000$ bootstrap samples). 
@@ -375,7 +375,7 @@ $$
 where each row corresponds to a condition and each column corresponds to a regression weight.
 Each condition had $n = 100$ trials. We conducted 10,000 simulation repetitions, computing credible intervals at the 95\% confidence level using EZ bootstrap (with $1000$ bootstrap samples).
 
-The EZ bootstrap method maintained excellent calibration even with the added complexity of the design matrix structure. For drift angle weights, coverage rates were 89.5\%, 94.5\%, and 94.2\% across the three weights. For drift magnitude weights, coverage rates were 94.5\%, 94.4\%, and 89.3\%. For boundary radius weights, coverage rates were 95.8\%, 94.8\%, and 93.0\%. For non-decision time weights, coverage rates were 95.8\%, 94.6\%, and 95.7\%. All coverage rates were within expected sampling variation of the nominal 95\% level.
+The method maintained excellent calibration: For drift angle weights, coverage rates were 89.5\%, 94.5\%, and 94.2\% across the three weights. For drift magnitude weights, coverage rates were 94.5\%, 94.4\%, and 89.3\%. For boundary radius weights, coverage rates were 95.8\%, 94.8\%, and 93.0\%. For non-decision time weights, coverage rates were 95.8\%, 94.6\%, and 95.7\%. All coverage rates were within expected sampling variation of the nominal 95\% level.
 
 \subsubsection{Computational performance}
 The EZ bootstrap method is exceptionally computationally efficient for EZ-CDM. For Study~1, the method required a mean of only 0.33~ms per estimation (SD = 0.03~ms), enabling rapid uncertainty quantification. For Study~2, with the added complexity of the design matrix, the method required a mean of 1.26~ms per estimation (SD = 0.19~ms). As with the DDM, these computation times allow for real-time uncertainty quantification.
