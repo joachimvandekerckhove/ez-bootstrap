@@ -307,13 +307,13 @@ The sampling distributions of the four summary statistics determine the variabil
 
 For the circular mean of choice angles (MCA), the angular error $\widehat{\driftangle} - \driftangle$ is approximately normally distributed for large $N$:
 \begin{equation}
-\widehat{\driftangle} - \driftangle \sim \mathcal{N}\left(0, \frac{1}{N\kappa A_1(\kappa)}\right) \nonumber
+\widehat{\driftangle} - \driftangle \sim \mathcal{N}\left(0, \frac{1}{N\kappa R}\right) \nonumber
 \end{equation}
-where $A_1(\kappa) = I_1(\kappa)/I_0(\kappa)$. The variance decreases rapidly with concentration $\kappa$, making estimation most difficult when drift magnitude or boundary radius are small.
+where $R = I_1(\kappa)/I_0(\kappa)$. The variance decreases rapidly with concentration $\kappa$, making estimation most difficult when drift magnitude or boundary radius are small.
 
-For the circular variance ($\VCA{}$), the mean resultant length $R = \sqrt{\bar{c}^2 + \bar{s}^2}$ is approximately normal for moderate-to-large $N$, with mean $A_1(\kappa)$ and variance:
+For the circular variance ($\VCA{}$), the mean resultant length $R = \sqrt{\bar{c}^2 + \bar{s}^2}$ is approximately normal for moderate-to-large $N$, with mean $R$ and variance:
 \begin{equation}
-\operatorname{Var}(R) \approx \frac{1 - A_1(\kappa)^2}{N} \nonumber
+\operatorname{Var}(R) \approx \frac{1 - R^2}{N} \nonumber
 \end{equation}
 Consequently, $\widehat{\VCA{}} = 1 - R$ is also asymptotically normal with the same variance. The circular variance is insensitive to outliers in angle (since angles wrap on the circle), but becomes unstable when $R$ is near zero.
 
