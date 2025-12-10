@@ -35,7 +35,7 @@ static double example_ndt_design[] = {
     1, 0, 0,
     0, 1, 0,
     0, 0, 1,
-    0, 1, 0
+    0, 0, 1
 };
 
 /* Beta weights: using valid range for drift_mag (≤ 1 to avoid negative VRT) */

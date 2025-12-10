@@ -33,13 +33,13 @@ Boundary radius weights:
   Weight 3: 93.0%
 NDT weights:
   Weight 1: 95.8%
-  Weight 2: 95.6%
-  Weight 3: 92.8%
+  Weight 2: 94.6%
+  Weight 3: 95.7%
 
 Iteration timing statistics:
-  Mean:  1.28 ms
-  Std:   0.22 ms
-  Min:   1.08 ms
-  Max:   3.42 ms
-  Total: 19312.51 ms (includes overhead)
+  Mean:  1.26 ms
+  Std:   0.20 ms
+  Min:   1.07 ms
+  Max:   3.86 ms
+  Total: 19019.07 ms (includes overhead)
 

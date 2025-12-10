@@ -32,9 +32,9 @@ NDT weights:
   Weight 3: 94.7%
 
 Iteration timing statistics:
-  Mean:  0.95 ms
-  Std:   0.12 ms
+  Mean:  0.94 ms
+  Std:   0.09 ms
   Min:   0.81 ms
-  Max:   1.99 ms
-  Total: 14480.97 ms (includes overhead)
+  Max:   1.68 ms
+  Total: 14234.21 ms (includes overhead)
 
