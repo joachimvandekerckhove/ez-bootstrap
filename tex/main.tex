@@ -281,12 +281,12 @@ i_\text{CDM}:
 $.
 
 The forward equations $f_\text{CDM}: \left(\driftangle, \driftmag, \boundaryradius, \ndtcdm\right) \mapsto \left(\MCA{}, \VCA{}, \MRT{}, \VRT{}\right)$ map parameters to summary statistics. The choice-angle distribution is von Mises with mean $\mu = \driftangle$ and concentration $\kappa = \boundaryradius\driftmag$.
-The circular mean and variance are:
+The circular mean and variance are then:
 \begin{eqnarray}
 \MCA{} &=& \driftangle \nonumber\\
-R &=& \frac{I_1(\kappa)}{I_0(\kappa)}, \quad \VCA{} = 1 - R \nonumber
+\VCA{} &=& 1 - R \nonumber
 \end{eqnarray}
-where $I_0$ and $I_1$ are modified Bessel functions of the first kind. The response time moments are:
+where $R = {I_1(\kappa)}/{I_0(\kappa)}$ and $I_0$ and $I_1$ are modified Bessel functions of the first kind. The response time moments are:
 \begin{eqnarray}
 \MRT{} &=& \ndtcdm + \frac{\boundaryradius}{\driftmag} R \nonumber\\
 \VRT{} &=& \frac{\boundaryradius^2}{\driftmag^2} R^2 + \frac{2\boundaryradius}{\driftmag^3} R - \boundaryradius^2 \nonumber
