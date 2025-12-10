@@ -70,7 +70,7 @@
 %% Set up main title page fonts 
 \newcommand{\headerfont}{\normalfont\sffamily\fontsize{7}{9} \selectfont}
 \newcommand{\footerfont}{\normalfont\sffamily\fontsize{7}{9} \selectfont}
-\newcommand{\titlefont}{\fontfamily{lmss}\bfseries\fontsize{21pt}{23pt}\selectfont}
+\newcommand{\titlefont}{\fontfamily{lmss}\bfseries\fontsize{20pt}{23pt}\selectfont}
 \newcommand{\dropcapfont}{\fontfamily{lmss}\bfseries\fontsize{26pt}{28pt}\selectfont}
 \newcommand{\datesfont}{\normalfont\sffamily\fontsize{7}{8}\selectfont}
 \newcommand{\absfont}{\normalfont\sffamily\bfseries\fontsize{8}{11}\selectfont}
