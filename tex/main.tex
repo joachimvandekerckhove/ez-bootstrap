@@ -256,7 +256,7 @@ Each condition had $n = 100$ trials. We conducted 10,000 simulation repetitions,
 The EZ bootstrap method maintained excellent calibration even with the added complexity of the design matrix structure. For boundary weights, coverage rates were 95.7\%, 94.9\%, and 96.6\% across the three weights. For drift weights, coverage rates were 94.6\%, 94.2\%, and 98.0\%. For non-decision time weights, coverage rates were 96.2\%, 94.3\%, and 94.7\%. All coverage rates were within expected sampling variation of the nominal 95\% level.
 
 \subsubsection{Computational performance} 
-The EZ bootstrap method is exceptionally computationally efficient. The simulations were run on a compute node, using a single core of a 3.4 GHz AMD Ryzen Threadripper 1950X processor.  For Study~1, the method required a mean of only 0.22~ms per estimation (SD = 0.06~ms), enabling rapid uncertainty quantification. For Study~2, with the added complexity of the design matrix, the method required a mean of 1.33~ms per estimation (SD = 0.15~ms). These computation times demonstrate that the method makes real-time\footnote{We have a strict definition of ``real-time'' as less than the duration of one frame in a typical experimental setup -- usually at most 1/120th of a second or 8.33~ms.} uncertainty quantification feasible where traditional methods would be prohibitively slow.
+The EZ bootstrap method is exceptionally computationally efficient. The simulations were run on an off-the-shelf laptop, using a single core of an 11th Gen Intel\textregistered{} Core\texttrademark{} i7-1195G7 processor running at 2.90GHz.  For Study~1, the method required a mean of only 0.16~ms per estimation (SD = 0.01~ms), enabling rapid uncertainty quantification. For Study~2, with the added complexity of the design matrix, the method required a mean of 0.92~ms per estimation (SD = 0.07~ms). These computation times demonstrate that the method makes real-time\footnote{We have a strict definition of ``real-time'' as less than the duration of one frame in a typical experimental setup -- usually at most 1/120th of a second or 8.33~ms.} uncertainty quantification feasible where traditional methods would be prohibitively slow.
 
 
 \section{Application to the circular diffusion model}
@@ -281,12 +281,12 @@ i_\text{CDM}:
 $.
 
 The forward equations $f_\text{CDM}: \left(\driftangle, \driftmag, \boundaryradius, \ndtcdm\right) \mapsto \left(\MCA{}, \VCA{}, \MRT{}, \VRT{}\right)$ map parameters to summary statistics. The choice-angle distribution is von Mises with mean $\mu = \driftangle$ and concentration $\kappa = \boundaryradius\driftmag$.
-The circular mean and variance are:
+The circular mean and variance are then:
 \begin{eqnarray}
 \MCA{} &=& \driftangle \nonumber\\
-R &=& \frac{I_1(\kappa)}{I_0(\kappa)}, \quad \VCA{} = 1 - R \nonumber
+\VCA{} &=& 1 - R \nonumber
 \end{eqnarray}
-where $I_0$ and $I_1$ are modified Bessel functions of the first kind. The response time moments are:
+where $R = {I_1(\kappa)}/{I_0(\kappa)}$ and $I_0$ and $I_1$ are modified Bessel functions of the first kind. The response time moments are:
 \begin{eqnarray}
 \MRT{} &=& \ndtcdm + \frac{\boundaryradius}{\driftmag} R \nonumber\\
 \VRT{} &=& \frac{\boundaryradius^2}{\driftmag^2} R^2 + \frac{2\boundaryradius}{\driftmag^3} R - \boundaryradius^2 \nonumber
@@ -378,11 +378,10 @@ $$
 where each row corresponds to a condition and each column corresponds to a regression weight.
 Each condition had $n = 100$ trials. We conducted 10,000 simulation repetitions, computing credible intervals at the 95\% confidence level using EZ bootstrap (with $1000$ bootstrap samples).
 
-% \textit{Results.}
 The EZ bootstrap method maintained excellent calibration even with the added complexity of the design matrix structure. For drift angle weights, coverage rates were 89.5\%, 94.5\%, and 94.2\% across the three weights. For drift magnitude weights, coverage rates were 94.5\%, 94.4\%, and 89.3\%. For boundary radius weights, coverage rates were 95.8\%, 94.8\%, and 93.0\%. For non-decision time weights, coverage rates were 95.8\%, 95.6\%, and 92.8\%. All coverage rates were within expected sampling variation of the nominal 95\% level.
 
 \subsubsection{Computational performance}
-The EZ bootstrap method is exceptionally computationally efficient for EZ-CDM. For Study~1, the method required a mean of only 0.26~ms per estimation (SD = 0.06~ms), enabling rapid uncertainty quantification. For Study~2, with the added complexity of the design matrix, the method required a mean of 1.81~ms per estimation (SD = 0.28~ms). As with the DDM, these computation times allow for real-time uncertainty quantification.
+The EZ bootstrap method is exceptionally computationally efficient for EZ-CDM. For Study~1, the method required a mean of only 0.18~ms per estimation (SD = 0.01~ms), enabling rapid uncertainty quantification. For Study~2, with the added complexity of the design matrix, the method required a mean of 1.24~ms per estimation (SD = 0.17~ms). As with the DDM, these computation times allow for real-time uncertainty quantification.
 
 \section{Other models}
 
@@ -445,9 +444,12 @@ The method's success relies on the synthetic likelihood structure of EZ models. 
 
 The bootstrap method has a few limitations worth pointing out:
 \begin{itemize}
-  \item \textbf{Model scope:} The method is limited to the class of EZ models and their design matrix extensions. While all identifiable models \textit{have} both the forward and inverse equations, they are often not known or mathematically inconvenient.
-  \item \textbf{Distributional assumptions:} The method requires that summary statistics have known or approximately known sampling distributions. The normal approximation for mean RT and Gamma approximation for variance are asymptotically valid but may be less accurate for very small samples ($n < 30$) or when RT distributions are highly skewed, but good approximations of sampling distributions are known for very many summary statistics.
-  \item \textbf{Independence assumption:} We assume approximate independence between summary statistics. While this holds asymptotically and is approximately valid for sufficiently large samples, correlations may be non-negligible for very small samples or models beyond our consideration.
+  \item 
+  \textbf{Model scope:} The method is limited to the class of EZ models and their design matrix extensions. While all identifiable models \textit{have} both the forward and inverse equations, they are often not known or mathematically inconvenient.
+  \item
+  \textbf{Distributional assumptions:} The method requires that summary statistics have known or approximately known sampling distributions. The normal approximation for mean RT and Gamma approximation for variance are asymptotically valid but may be less accurate for very small samples ($n < 30$) or when RT distributions are highly skewed, but good approximations of sampling distributions are known for very many summary statistics.
+  \item
+  \textbf{Independence assumption:} We assume approximate independence between summary statistics. While this holds asymptotically and is approximately valid for sufficiently large samples, correlations may be non-negligible for very small samples or models beyond our consideration.
 \end{itemize}
 
 
