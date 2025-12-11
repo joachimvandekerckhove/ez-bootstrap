@@ -24,6 +24,6 @@ Iteration timing statistics:
   Mean:  0.16 ms
   Std:   0.02 ms
   Min:   0.15 ms
-  Max:   0.50 ms
-  Total: 3097.90 ms (includes overhead)
+  Max:   0.54 ms
+  Total: 3104.04 ms (includes overhead)
 
