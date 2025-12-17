@@ -16,6 +16,7 @@ draft:
 	bibtex main
 	pdflatex "\def\apaformat{1}\input{main}"
 	pdflatex "\def\apaformat{1}\input{main}"
+	pdflatex "\def\apaformat{1}\input{main}"
 	mv main.pdf pdf/draft.pdf
 
 # Compile in pretty format to pdf/pretty.pdf
@@ -24,6 +25,9 @@ pretty:
 	pdflatex main.tex
 	bibtex main
 	bibtex main
+	bibtex main
+	pdflatex main.tex
+	pdflatex main.tex
 	pdflatex main.tex
 	mv main.pdf pdf/pretty.pdf
 
