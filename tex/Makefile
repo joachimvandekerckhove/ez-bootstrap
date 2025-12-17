@@ -1,6 +1,6 @@
 # On calling 'make', compile both APA and pretty formats and then make clean
 
-all: draft pretty clean
+all: draft clean pretty clean
 
 # Clean up the aux files
 clean:

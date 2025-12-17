@@ -40,7 +40,6 @@
 
 \noindent{}%
 Cognitive models serve dual purposes in psychological research. On one hand, they can be used to understand the cognitive infrastructure---the underlying mechanisms and processes that give rise to behavior. On the other hand, cognitive models can function as measurement tools, translating behavioral observations into interpretable psychological parameters. This paper focuses on the latter: we develop computationally efficient methods for uncertainty quantification in cognitive models used as measurement instruments. The need for computational efficiency becomes critical in large-scale applications such as meta-analyses across hundreds of studies, real-time experimental analysis during data collection, and individual differences research requiring parameter estimation for thousands of participants. Traditional approaches to uncertainty quantification, which rely on computationally expensive resampling or Bayesian inference, create barriers in these contexts. We propose a bootstrap method that exploits the synthetic likelihood structure of a class of cognitive models we call `EZ' models, achieving dramatic speed improvements while maintaining statistical validity.
-\jv{You can leave notes with \texttt{\textbackslash{}elf\{ <note text> \}.}}
 
 \section{Synthetic likelihood methods}
 
@@ -78,24 +77,23 @@ where $\Phi$ denotes the standard normal cumulative distribution function. The i
 \end{eqnarray}
 where $\Phi^{-1}$ denotes the inverse standard normal cumulative distribution function. Here, $\HitRate$ denotes the hit rate (probability of correctly identifying a signal), $\FalseAlarm$ denotes the false alarm rate (probability of incorrectly identifying a signal when none is present), $\dprime$ denotes sensitivity (the ability to discriminate signal from noise), and $\criterion$ denotes the criterion (the decision threshold).
 
-Other members of the EZ class include the EZ diffusion model (\citeNP{WagenmakersEtAl2007}; discussed in detail below), the EZ circular diffusion model \cite{QarehdaghiRad2024}, and some simple multinomial processing tree models with analytical solutions. 
-\elf{ 'discussed in detail below' : all of these are discussed below, not just EZ diffusion, right?}
+Other members of the EZ class include the EZ diffusion model (\citeNP{WagenmakersEtAl2007}), the EZ circular diffusion model \cite{QarehdaghiRad2024}, and some simple multinomial processing tree models with analytical solutions. \claude{These models are discussed in detail below.}
 
 
 \section{The EZ bootstrap procedure}\label{sec:ez_bootstrap}
 
 We propose a bootstrap method we call `EZ bootstrap' that exploits the synthetic likelihood structure of EZ models. The method operates directly on summary statistics, using their known sampling distributions to perform a parametric bootstrap. 
 
-In the abstract, EZ bootstrap proceeds along the following steps. First, (1) compute observed summary statistics $S$ from the \elf{observed (human)?} data. Then, (2) for each bootstrap repetition $b = 1, \ldots, B$: (2a) sample summary statistics $S^*_b$ from their known sampling distributions $\mathcal{D}_S$ (the requirement that these distributions be known or estimable is fundamental to the method), and (2b) transform $S^*_b$ through the inverse equations $i$ to obtain bootstrap parameter estimates $\theta^*_b = i(S^*_b)$. Finally, (3) aggregate the bootstrap parameter estimates $\{\theta^*_1, \ldots, \theta^*_B\}$ to compute means, standard deviations, and credible intervals.
+In the abstract, EZ bootstrap proceeds along the following steps. First, (1) compute summary statistics $S$ from the \claude{observed} data. Then, (2) for each bootstrap repetition $b = 1, \ldots, B$: (2a) sample summary statistics $S^*_b$ from their known sampling distributions $\mathcal{D}_S$ (the requirement that these distributions be known or estimable is fundamental to the method), and (2b) transform $S^*_b$ through the inverse equations $i$ to obtain bootstrap parameter estimates $\theta^*_b = i(S^*_b)$. Finally, (3) aggregate the bootstrap parameter estimates $\{\theta^*_1, \ldots, \theta^*_B\}$ to compute means, standard deviations, and credible intervals.
 
-This procedure is formalized in Algorithm~\ref{alg:ez_bootstrap}. EZ bootstrap is fundamentally a transformation-of-variables approach to uncertainty estimation. Rather than resampling raw data and re-estimating parameters, we resample the summary statistics from their known distributions, then transform these resampled statistics through the inverse equations to obtain parameter estimates. This transformation preserves the statistical properties of the bootstrap while eliminating the computational cost of data resampling. \elf{May be helpful to the reader to map to Algorithm 1 variables in this paragraph.} 
+This procedure is formalized in Algorithm~\ref{alg:ez_bootstrap}. EZ bootstrap is fundamentally a transformation-of-variables approach to uncertainty estimation. Rather than resampling raw data and re-estimating parameters, we resample the summary statistics from their known distributions, then transform these resampled statistics through the inverse equations to obtain parameter estimates. \claude{Specifically, in Algorithm~\ref{alg:ez_bootstrap} we sample $S^*_b$ from $\mathcal{D}_S$ for each bootstrap repetition $b = 1, \ldots, B$, then compute $\theta^*_b = i(S^*_b)$ to obtain the bootstrap parameter estimates $\{\theta^*_1, \ldots, \theta^*_B\}$.} This transformation preserves the statistical properties of the bootstrap while eliminating the computational cost of data resampling. 
 
 \subsection{Transformation of variables for uncertainty quantification}
-Transformation of variables is a fundamental method in statistics for propagating uncertainty through deterministic transformations \cite{rice2006mathematical}. When a random variable $X$ with known distribution is transformed through a function $Y = g(X)$, the distribution of $Y$ can be derived using the change-of-variables formula. \elf{Is there a citation where change-of-variables formula is used in Math Psych or other domains} This technique is central to the EZ bootstrap method.
+Transformation of variables is a fundamental method in statistics for propagating uncertainty through deterministic transformations (\citeNP{rice2006mathematical}, see also \citeNP{hayes2013relative}). When a random variable $X$ with known distribution is transformed through a function $Y = g(X)$, the distribution of $Y$ can be derived using the change-of-variables formula. This technique is central to the EZ bootstrap method.
 
 In the context of uncertainty quantification, transformation of variables allows us to derive the distribution of parameter estimates from the distribution of summary statistics in EZ models. The inverse equations (Eq.~\ref{eq:generic:inv}) provide a deterministic transformation from summary statistics to parameters. By applying this transformation to bootstrap samples of the summary statistics, we obtain bootstrap samples of the parameters, which can then be used to quantify uncertainty.
 
-The key advantage of this approach is computational efficiency. Rather than resampling raw data and re-estimating parameters for each bootstrap sample---which would require expensive optimization or simulation \elf{e.g., citation (if applicable)}---we resample the summary statistics from their known distributions and apply the analytical transformation. \elf{i.e., Algorithm 1?} This eliminates the computational bottleneck while preserving the statistical properties of the bootstrap.
+The key advantage of this approach is computational efficiency. Rather than resampling raw data and re-estimating parameters for each bootstrap sample---which would require expensive optimization or simulation \cite{efron1994introduction}---we resample the summary statistics from their known distributions and apply the analytical transformation, \claude{as formalized in Algorithm~\ref{alg:ez_bootstrap}}. This eliminates the computational bottleneck while preserving the statistical properties of the bootstrap.
 
 The transformation-of-variables approach is made possible in EZ models particularly because the inverse transformation is analytical, smooth, and one-to-one (within the parameter space, or a relevant subspace thereof). 
 
@@ -120,32 +118,22 @@ is a continuous, differentiable function. Under the bootstrap sampling scheme, w
 
 \section{Design matrix extension}
 
-In applied contexts, we often constrain parameters across conditions. These constraints can be expressed using design matrices. For example, \elf{for diffusion models,} if drift rates, \elf{$\drift$}, vary linearly with a stimulus property $x_i$, we can write:
-$$\drift_i = \beta_0 + \beta_1 x_i$$
+In applied contexts, we often constrain parameters across conditions. These constraints can be expressed using design matrices. For example, \claude{for diffusion models,} if drift rates, \claude{$\drift$,} vary linearly with a stimulus property $x_i$, we can write:
+$$\drift_i = \beta_0 + \beta_1 x_i.$$
+If they vary quarilinearly, then:
+$$\drift_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2.$$
 
 This generalizes, so that parameter constraints can be expressed as:
-$$\Delta = X \times B$$
-\elf{Assuming I am following correctly, $B$ is already defined in Algorithm 1 for number of bootstrap samples, right?}
-where $\Delta$ is a vector of parameters, $X$ is a design matrix, and $B$ is a vector of regression weights.
+$$\Delta = X \times \boldsymbol{\beta}$$
+where $\Delta$ is a vector of parameters, $X$ is a design matrix, and $\boldsymbol{\beta}$ is a vector of regression weights.
 
-If the model parameters $\Delta$ are known and the model is identified, the weights $B$ can be derived via matrix inversion:
+If the model parameters $\Delta$ are known and the model is identified, the weights $\boldsymbol{\beta}$ can be derived via matrix inversion:
 \begin{equation}
-    \hat{B} = X^{-1} \times \Delta \label{eq:design:solution}
+    \hat{\boldsymbol{\beta}} = X^{-1} \times \Delta \label{eq:design:solution}
 \end{equation}
 
-Importantly, adding the design matrix extension \textit{keeps the model inside the EZ class} and does not change the bootstrap logic.  This is easy to prove: %the bootstrap procedure still resamples summary statistics and applies the EZ inverse transformation to obtain parameters (as in the basic EZ bootstrap). The design matrix transformation is then applied as a deterministic linear mapping from parameters to beta weights. Since the design matrix transformation is deterministic and linear, composing it with the EZ inverse transformation preserves the bootstrap properties: we are still propagating uncertainty through a deterministic transformation, just with an additional step in the chain.
-%
-% \paragraph{Formal proof.}
-Let $i: S \mapsto \theta$ denote the EZ inverse transformation mapping summary statistics $S$ to parameters $\theta$ \elf{[Equation 1]}, and let $h: \theta \mapsto B$ denote the design matrix transformation mapping parameters $\theta$ to beta weights $B$ via $h(\theta) = X^{-1}\theta$ (where $X$ is the design matrix). The basic EZ bootstrap generates bootstrap samples $\theta^* = i(S^*)$ where $S^*$ is resampled from the known distribution of summary statistics. With the design matrix extension, we generate bootstrap samples $B^* = h(i(S^*)) = X^{-1}i(S^*)$. 
-\elf{Similar to a previous note, this $B$ refers back to Algorithm 1, but above Equations use $B$ as vector of regression weights. If this is the case, it may be worth using an alternative to avoid confusion (if possible)}
-Since $i$ is a deterministic, smooth transformation (by the definition of EZ models) and $h$ is a deterministic linear transformation (matrix multiplication), their composition $\left(h \circ i\right): S \mapsto B$ is also deterministic and smooth. By the same invariance property of bootstrap methods under smooth transformations \cite{rice2006mathematical}, if the bootstrap distribution of $S^*$ correctly represents the sampling distribution of $S$, then the bootstrap distribution of $B^* = (h \circ i)(S^*)$ correctly represents the sampling distribution of $B = (h \circ i)(S)$. Therefore, the design matrix extension preserves the bootstrap's coverage properties: the model remains in the EZ class because we still use the EZ inverse transformation, and the bootstrap logic is unchanged because we are still propagating uncertainty through a deterministic transformation.
-
-\subsection{Identifiability and numerical stability} For the design matrix extension to work, $X$ must be full rank (i.e., $\text{rank}(X) = \text{dim}(B)$). \elf{I'm not familiar with 'full rank'; for readers who may also not be familiar, it would be helpful to have a short description of what this means.} When $X$ is singular or near-singular, the inversion in Equation~\ref{eq:design:solution} becomes problematic. For well-designed experiments with proper contrasts, identifiability is typically satisfied, but for designs with multiple observed predictors, a rank test of $X$ is recommended.
-
-% In practice, in our python implementation, we check the condition number of $X$ and warn users if $\kappa(X) > 10^6$, which indicates potential numerical instability. The condition number $\kappa(X) = \|X\| \|X^{-1}\|$ measures how sensitive the solution is to small changes in the input. A large condition number (e.g., $> 10^6$) indicates that $X$ is nearly singular, meaning that small errors in the data or floating-point arithmetic can lead to large errors in the computed inverse, making the results unreliable.
-
-\subsection{Computational implications of adding the design matrix}
-For efficiency purposes it is worth pointing out that the matrix inversion in Equation~\ref{eq:design:solution} generally needs to be computed only once per study. In a bootstrap procedure, we can estimate many $B$ vectors from many $\Delta$ vectors using the same inverted design matrix, making the design matrix extension computationally efficient: The computational complexity is $O(k^3)$ for the initial inversion (where $k$ is the number of regression weights), then $O(k^2)$ per bootstrap sample (compared to $O(k^3)$ per sample if inversion were repeated).\footnote{The complexity analysis follows from standard matrix operations: matrix inversion (e.g., via Gaussian elimination or LU decomposition) requires $O(k^3)$ operations for a $k \times k$ matrix. Matrix-vector multiplication requires $O(k^2)$ operations. With a pre-computed inverse $X^{-1}$, each bootstrap sample computes $\hat{B} = X^{-1} \Delta$, which is a matrix-vector multiplication requiring $O(k^2)$ operations. Without pre-computation, each bootstrap sample would require a full inversion at $O(k^3)$ cost.}
+Importantly, adding the design matrix extension \textit{keeps the model inside the EZ class} and does not change the bootstrap logic.  This is easy to prove: Let $i: S \mapsto \theta$ denote the EZ inverse transformation mapping summary statistics $S$ to parameters $\theta$ (Eq.~\ref{eq:generic:inv}), and let $h: \theta \mapsto \boldsymbol{\beta}$ denote the design matrix transformation mapping parameters $\theta$ to beta weights $\boldsymbol{\beta}$ via $h(\theta) = X^{-1}\theta$ (where $X$ is the design matrix). The basic EZ bootstrap generates bootstrap samples $\theta^* = i(S^*)$ where $S^*$ is resampled from the known distribution of summary statistics. With the design matrix extension, we generate bootstrap samples $\boldsymbol{\beta}^* = h(i(S^*)) = X^{-1}i(S^*)$. 
+Since $i$ is a deterministic, smooth transformation (by the definition of EZ models) and $h$ is a deterministic linear transformation (matrix multiplication), their composition $\left(h \circ i\right): S \mapsto \boldsymbol{\beta}$ is also deterministic and smooth. By the same invariance property of bootstrap methods under smooth transformations \cite{rice2006mathematical}, if the bootstrap distribution of $S^*$ correctly represents the sampling distribution of $S$, then the bootstrap distribution of $\boldsymbol{\beta}^* = (h \circ i)(S^*)$ correctly represents the sampling distribution of $\boldsymbol{\beta} = (h \circ i)(S)$. Therefore, the design matrix extension preserves the bootstrap's coverage properties: the model remains in the EZ class because we still use the EZ inverse transformation, and the bootstrap logic is unchanged because we are still propagating uncertainty through a deterministic transformation.
 
 \section{Application to the simple diffusion model}
 
@@ -184,8 +172,7 @@ The EZ inverse equations map summary statistics to parameters. Let $y = \log(\ac
 \boundarysep &=& \frac{y}{\drift} \nonumber\\
 \ndt &=& \meanrt - \left(\frac{\boundarysep}{2\drift}\right) \left(\frac{1-e^{-\drift\boundarysep}}{1+e^{-\drift\boundarysep}}\right) \nonumber
 \end{eqnarray}
-
-\elf{What does 'sign' mean in the above equation for drift?}
+\claude{where $\text{sign}(x)$ denotes the sign function, which returns $+1$ if $x \geq 0$ and $-1$ if $x < 0$. In this context, it determines whether drift is positive (when accuracy $\geq 0.5$) or negative (when accuracy $< 0.5$).}
 
 These equations provide point estimates. The bootstrap method extends this to uncertainty quantification.
 
@@ -203,16 +190,6 @@ where $p$, $m$, and $s^2$ are the true population values of accuracy, mean RT, a
 Note, however, that we do not make sample size recommendations based on these classical rules of thumb.  The procedure we propose is so fast that Monte Carlo studies are very feasible methods to evaluate the effect of violated assumptions.
 
 \subsection{Independence assumption} We assume approximate independence between the three summary statistics. While these statistics are derived from the same data, they are asymptotically independent under the EZ model assumptions. For finite samples, correlations have negligible impact on coverage properties (see our simulation studies below). 
-% The independence assumption allows us to sample each statistic independently.
-
-% The bootstrap procedure (as described in the abstract form above and in Algorithm~\ref{alg:ez_bootstrap}) proceeds as follows:
-% \begin{enumerate}
-% \item Draw bootstrap samples of the summary statistics from their sampling distributions
-% \item Transform each bootstrap sample through the EZ inverse equations (Equations~\ref{eq:ez:est:v}, \ref{eq:ez:est:a}, and~\ref{eq:ez:est:d}) to obtain bootstrap parameter estimates
-% \item Aggregate the bootstrap estimates to compute means, standard deviations, and credible intervals
-% \end{enumerate}
-
-% This procedure requires only basic analytical transformations, making it orders of magnitude faster than methods that require iterative optimization or MCMC sampling.
 
 \subsection{Simulation studies}
 
@@ -225,7 +202,7 @@ In Study 1, we evaluated coverage for the regular EZ diffusion model with a sing
 We evaluated coverage at the 95\% confidence level across all simulation repetitions. The EZ bootstrap method achieved excellent calibration. Coverage rates were 95.5\%, 94.8\%, and 96.0\% for boundary, drift, and non-decision time, respectively---all within expected sampling variation of the nominal 95\% level. When considering all three parameters simultaneously, the coverage rate was 87.7\%, closely matching the expected value ($0.95^3 \approx 0.857$).
 
 \subsubsection{Study 2: Design matrix extension}
-In Study 2, we evaluated coverage for the EZ diffusion model with a design matrix extension. We simulated data from four conditions using a design matrix with three regression weights for each parameter type (boundary, drift, and non-decision time), resulting in 9 beta weight parameters total. The true beta weights were: boundary weights $[1.0, 1.5, 2.0]$, drift weights $[0.4, 0.8, 1.2]$, and non-decision time weights $[0.2, 0.3, 0.4]$. \elf{Is there a study/effect demonstration of these parameter values? It could help with grounding the reader for the rationale behind choosing these.}
+In Study 2, we evaluated coverage for the EZ diffusion model with a design matrix extension. We simulated data from four conditions using a design matrix with three regression weights for each parameter type (boundary, drift, and non-decision time), resulting in 9 beta weight parameters total. The true beta weights were: boundary weights $[1.0, 1.5, 2.0]$, drift weights $[0.4, 0.8, 1.2]$, and non-decision time weights $[0.2, 0.3, 0.4]$. \claude{These parameter values were chosen to represent typical values in the EZ diffusion model \cite{matzke2009psychological}.}
 
 The design matrices for boundary, drift, and non-decision time parameters were:
 $$
@@ -322,15 +299,9 @@ For response time variance ($\VRT{}$), the sample variance is asymptotically nor
 \begin{equation}
 \widehat{\VRT{}} \sim \mathcal{N}\left(\VRT{}, \frac{m_4 - \VRT{}^2}{N}\right) \nonumber 
 \end{equation}
-
-\elf{I think there is an extra $^2$ above: $s_{i}^{22}$}
 where $m_4$ is the fourth central moment of the RT distribution. This statistic is the most contamination-sensitive in EZ-CDM, as a small number of extreme RTs can cause large upward shifts (see \citeNP{chávez_de_la_peña_etal:preprint:hierarchical}, and \citeNP{QarehdaghiRad2024}, for approaches using robust summary statistics).
 
 The EZ bootstrap procedure can be applied to EZ-CDM by resampling these statistics from their asymptotic distributions. The angle-based statistics ($\MCA{}$ and $\VCA{}$) have well-behaved sampling distributions, while the RT-based statistics ($\MRT{}$ and $\VRT{}$) introduce most of the sampling variability in the inversion system, especially when solving for drift magnitude and boundary radius.
-
-% \subsection{The EZ bootstrap procedure applied to circular diffusion}
-
-% The bootstrap exploits the known sampling distributions of the summary statistics. For a sample of size $N$, these distributions are as described above: MCA follows a normal distribution, VCA follows a normal distribution, MRT follows a normal distribution, and VRT follows a normal distribution (all asymptotically).
 
 \subsection{Simulation studies}
 
@@ -343,7 +314,7 @@ In Study 1, we evaluated coverage for the regular EZ circular diffusion model wi
 We evaluated coverage at the 95\% confidence level across 10,000 simulation repetitions. The EZ bootstrap method achieved excellent calibration. Coverage rates were 93.9\%, 94.3\%, 95.2\%, and 94.8\% for drift angle, drift magnitude, boundary radius, and non-decision time, respectively---all within expected sampling variation of the nominal 95\% level. When considering all four parameters simultaneously, the coverage rate was 82.4\%, closely matching the expected value ($0.95^4 \approx 0.815$).
 
 \subsubsection{Study 2: Design matrix extension}
-In Study 2, we evaluated coverage for the EZ circular diffusion model with a design matrix extension. We simulated data from four conditions using a design matrix with three regression weights for each parameter type (drift angle, drift magnitude, boundary radius, and non-decision time), resulting in 12 beta weight parameters total. The true beta weights were: drift angle weights $[0.0, 0.5, 1.0]$, drift magnitude weights $[0.5, 0.7, 0.9]$, boundary radius weights $[0.8, 1.0, 1.2]$, and non-decision time weights $[0.15, 0.2, 0.25]$. \elf{Same note as EZ DDM: Is there a study/effect demonstration of these parameter values? It could help with grounding the reader for the rationale behind choosing these.}
+In Study 2, we evaluated coverage for the EZ circular diffusion model with a design matrix extension. We simulated data from four conditions using a design matrix with three regression weights for each parameter type (drift angle, drift magnitude, boundary radius, and non-decision time), resulting in 12 beta weight parameters total. The true beta weights were: drift angle weights $[0.0, 0.5, 1.0]$, drift magnitude weights $[0.5, 0.7, 0.9]$, boundary radius weights $[0.8, 1.0, 1.2]$, and non-decision time weights $[0.15, 0.2, 0.25]$ \cite{villarreal_etal:2024:graphical}.
 
 The design matrices for drift angle, drift magnitude, boundary radius, and non-decision time parameters were:
 $$
@@ -382,7 +353,7 @@ For Study~1, the method required a mean of only 0.33~ms per estimation (SD = 0.0
 
 \section{Other models}
 
-The EZ bootstrap method generalizes to any model in the EZ class -- that is, any model with analytical forward and inverse equations smoothly mapping parameters to summary statistics. Here we briefly describe one additional example: the one-high-threshold source-monitoring MPT \elf{First use of MPT: Spell out} model.
+The EZ bootstrap method generalizes to any model in the EZ class -- that is, any model with analytical forward and inverse equations smoothly mapping parameters to summary statistics. Here we briefly describe one additional example: the one-high-threshold source-monitoring \claude{multinomial processing tree (MPT)} model.
 
 \subsection{One-high-threshold source-monitoring model}
 
@@ -428,8 +399,6 @@ where $n_B$ is the number of old items from Source~B and $\ABstat + \BBstat = 1$
 \end{equation}
 where $n_N$ is the number of new-item trials and $\NNstat + \ANstat + \BNstat = 1$. The EZ bootstrap procedure can be applied by resampling from these multinomial distributions and transforming through the inverse equations to obtain bootstrap parameter estimates.
 
-\elf{Curiosity: Is there representation for a choice selection of 'New' when 'Old' is A or B? i.e., $N_{A}, N_{B}$}
-
 We provide this solvable MPT example only as an illustration. The class of MPT models with tractable analytical inverses is rather narrow and does not reflect the complexity of most MPT applications, where estimation usually requires numerical optimization or Bayesian inference \cite{matzke_etal:2018:nonstandard}.
 
 \section{Discussion}
@@ -441,15 +410,7 @@ The method's success relies on the synthetic likelihood structure of EZ models. 
 
 \subsection{Limitations}
 
-The bootstrap method has a few limitations worth pointing out:
-\begin{itemize}
-  \item 
-  \textbf{Model scope:} The method is limited to the class of EZ models and their design matrix extensions. While identifiable models will typically \textit{have} both the forward and inverse equations, the equations are often not known or are mathematically inconvenient.
-  \item
-  \textbf{Distributional assumptions:} The method requires that summary statistics have known or approximately known sampling distributions. Approximations such as the normal distribution for mean RT and the Gamma for variance are asymptotically valid but may be less accurate for very small samples ($n < 30$) or when RT distributions are highly skewed, but good approximations of sampling distributions are known for very many summary statistics.
-  \item
-  \textbf{Independence assumption:} We assume approximate independence between summary statistics. While this holds asymptotically and is approximately valid for sufficiently large samples, correlations may be non-negligible for very small samples or models beyond our consideration.
-\end{itemize}
+\claude{The bootstrap method has a few limitations worth pointing out. First, the method is limited to the class of EZ models and their design matrix extensions. While identifiable models will typically \textit{have} both the forward and inverse equations, the equations are often not known or are mathematically inconvenient. Second, the method requires that summary statistics have known or approximately known sampling distributions. Approximations such as the normal distribution for mean RT and the Gamma for variance are asymptotically valid but may be less accurate for very small samples ($n < 30$) or when RT distributions are highly skewed, but good approximations of sampling distributions are known for very many summary statistics. Third, we assume approximate independence between summary statistics. While this holds asymptotically and is approximately valid for sufficiently large samples, correlations may be non-negligible for very small samples or models beyond our consideration.}
 
 
 \subsection{Future directions}
@@ -477,11 +438,11 @@ To reproduce the simulation studies, first
 
 The script executes both simulation studies for the EZ-DDM and EZ-CDM with the following editable parameters: 10,000 simulation repetitions, sample size $n = 100$ trials per condition, and 1,000 bootstrap samples per repetition. The simulation outputs include coverage rates for each parameter (or beta weight) and computational performance metrics.
 
-\jv{Mention EZAS package here too.}
+\claude{A Python implementation of the EZ-DDM is also available as part of the larger EZAS package (\url{https://github.com/joachimvandekerckhove/ezas}), which uses the same method but is not as fast as the C implementation.}
 
 % \lstinputlisting[basicstyle=\ttfamily\small,breaklines=true]{includes/simulation-short.txt}
 
 \section{Disclaimer}
-The views expressed are those of the authors and do not necessarily reflect the official policy or position of the Department of the Air Force, the Department of War, or the U.S. government. 
+The views expressed are those of the authors and do not necessarily reflect the official policy or position of the Department of the Air Force, the Department of Defense, or the U.S. Government. 
 
 \end{document}
