@@ -137,7 +137,7 @@ Since $i$ is a deterministic, smooth transformation (by the definition of EZ mod
 
 \section{Application to the simple diffusion model}
 
-The drift diffusion model (DDM) provides a unified account of decision-making processes, modeling both response accuracy and response time as the result of an evidence accumulation process \cite{Ratcliff1978,Wagenmakers2009Bertelson}. This framework has proven valuable in cognitive psychometrics, enabling the translation of behavioral patterns into interpretable cognitive parameters \cite<e.g.,>{pe_etal:2013:relationship,schubert_etal:2019:neuroscience}.
+The drift diffusion model (DDM) provides a unified account of decision-making processes, modeling both response accuracy and response time as the result of an evidence accumulation process \cite{Ratcliff1978,Wagenmakers2009Bertelson}. This framework has proven valuable in cognitive psychometrics, enabling the translation of behavioral patterns into interpretable cognitive parameters \cite<e.g.,>{pe_etal:2013:relationship,schubert_etal:2019:neuroscience,vandekerckhove:2014:simultaneous}.
 
 The EZ diffusion model \cite{WagenmakersEtAl2007} was originally proposed as a method to simplify use of the DDM by providing analytical expressions that map three summary statistics---accuracy rate, mean response time, and response time variance---to three cognitive parameters: drift rate, boundary separation, and non-decision time. This makes the EZ framework a synthetic likelihood model: it provides a likelihood function based on summary statistics rather than raw trial data.
 
@@ -422,6 +422,10 @@ Perhaps most promisingly, implicit mappings from parameters to summary statistic
 
 \bibliography{includes/references,includes/cidlab}\null
 
+\subsection{Disclaimer}
+The views expressed are those of the authors and do not necessarily reflect the official policy or position of the Department of the Air Force, the Department of Defense, or the U.S. Government. 
+
+
 \appendix
 \ifdefined\apaformat
 \section{Reproducing the simulation studies}
@@ -441,8 +445,5 @@ The script executes both simulation studies for the EZ-DDM and EZ-CDM with the f
 \claude{A Python implementation of the EZ-DDM is also available as part of the larger EZAS package (\url{https://github.com/joachimvandekerckhove/ezas}), which uses the same method but is not as fast as the C implementation.}
 
 % \lstinputlisting[basicstyle=\ttfamily\small,breaklines=true]{includes/simulation-short.txt}
-
-\section{Disclaimer}
-The views expressed are those of the authors and do not necessarily reflect the official policy or position of the Department of the Air Force, the Department of Defense, or the U.S. Government. 
 
 \end{document}
