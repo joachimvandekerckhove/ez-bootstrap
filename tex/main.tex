@@ -1,7 +1,7 @@
 % To compile in APA format: pdflatex "\def\apaformat{1}\input{main}"
 % To compile in original format: pdflatex main.tex
 
-% \def\apaformat{1}
+\def\apaformat{1}
 
 \ifdefined\apaformat
   \input{cidlab/draft}
@@ -420,19 +420,9 @@ Several extensions are possible. The method could be extended to yet more models
 Perhaps most promisingly, implicit mappings from parameters to summary statistics exist even when explicit equations are unknown. Techniques from statistical learning, such as normalizing flow neural networks, could be used to approximate these mappings for use in the synthetic bootstrap method, extending the approach to a broader class of models.
 
 
-\bibliography{includes/references,includes/cidlab}\null
+\section{Computational reproducibility}
 
-\subsection{Disclaimer}
-The views expressed are those of the authors and do not necessarily reflect the official policy or position of the Department of the Air Force, the Department of Defense, or the U.S. Government. 
-
-
-\appendix
-\ifdefined\apaformat
-\section{Reproducing the simulation studies}
-\else
-\section{Appendix: Reproducing the simulation studies}
-\fi
-The simulation studies reported in this paper can be reproduced using the C implementation available in the GitHub repository \texttt{joachimvandekerckhove/ez-bootstrap}. The implementation requires the GNU Scientific Library (GSL) for random number generation and statistical distributions.
+All code associated with this project is available via GitHub. The simulation studies reported in this paper can be reproduced using the C implementation available in the GitHub repository \texttt{joachimvandekerckhove/ez-bootstrap}. The implementation requires the GNU Scientific Library (GSL) for random number generation and statistical distributions.
 
 To reproduce the simulation studies, first
 (1)~clone the repository, then
@@ -443,5 +433,42 @@ To reproduce the simulation studies, first
 The script executes both simulation studies for the EZ-DDM and EZ-CDM with the following editable parameters: 10,000 simulation repetitions, sample size $n = 100$ trials per condition, and 1,000 bootstrap samples per repetition. The simulation outputs include coverage rates for each parameter (or beta weight) and computational performance metrics.
 
 {A Python implementation of the EZ-DDM is also available as part of the larger EZAS package (\url{https://github.com/joachimvandekerckhove/ezas}), which uses the same method but is not as fast as the C implementation.}
+
+
+\ifdefined\apaformat
+
+\newcommand{\dec}[2]{\noindent\textbf{#1} --- #2}
+
+\section{Declarations}
+
+\dec{Funding}{This work was supported by the National Research Council.}
+   
+\dec{Competing interests}{The authors report no competing interest.}
+
+\dec{Ethics approval}{N/A}
+
+\dec{Consent to participate}{N/A}
+
+\dec{Consent for publication}{N/A}
+
+\dec{Availability of data and materials}{N/A}
+
+\dec{Code availability}{See Section ``Computational reproducibility.''}
+
+\fi
+
+
+\bibliography{includes/references,includes/cidlab}\null
+
+\subsection{Disclaimer}
+The views expressed are those of the authors and do not necessarily reflect the official policy or position of the Department of the Air Force, the Department of Defense, or the U.S. Government. 
+
+
+% \appendix
+% \ifdefined\apaformat
+% \section{Reproducing the simulation studies}
+% \else
+% \section{Appendix: Reproducing the simulation studies}
+% \fi
 
 \end{document}
